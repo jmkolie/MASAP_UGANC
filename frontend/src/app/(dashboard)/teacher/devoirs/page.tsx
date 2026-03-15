@@ -201,7 +201,7 @@ export default function DevoirsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {a.file_path && <Paperclip className="w-3.5 h-3.5 text-gray-400" title="Fichier joint" />}
+                    {a.file_path && <Paperclip className="w-3.5 h-3.5 text-gray-400" aria-label="Fichier joint" />}
                     <span className={`badge ${isPast ? 'bg-gray-100 text-gray-500 border-gray-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
                       {isPast ? 'Expiré' : 'En cours'}
                     </span>

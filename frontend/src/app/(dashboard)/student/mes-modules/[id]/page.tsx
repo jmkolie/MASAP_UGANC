@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, BookMarked, FileText, Download, File, FileSpreadsheet } from 'lucide-react'
+import { ArrowLeft, FileText, Download, File, FileSpreadsheet } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -25,7 +25,7 @@ const DOC_TYPE_COLORS: Record<string, string> = {
   other: 'bg-gray-100 text-gray-600 border-gray-200',
 }
 
-function FileIcon({ type }: { type: string }) {
+function FileIcon({ type }: { type: string | undefined }) {
   if (type?.includes('pdf')) return <FileText className="w-8 h-8 text-red-500" />
   if (type?.includes('sheet') || type?.includes('excel')) return <FileSpreadsheet className="w-8 h-8 text-green-600" />
   return <File className="w-8 h-8 text-blue-500" />
@@ -70,7 +70,7 @@ export default function ModuleDocumentsPage() {
     }
   }
 
-  const types = [...new Set(documents.map(d => d.document_type))]
+  const types = Array.from(new Set(documents.map(d => d.document_type)))
   const filtered = activeType ? documents.filter(d => d.document_type === activeType) : documents
 
   if (loading) return <PageLoader />
