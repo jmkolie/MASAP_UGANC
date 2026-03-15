@@ -35,21 +35,7 @@ docker compose up --build
 docker compose up --build -d
 ```
 
-Le portail sera accessible sur :
-- **Portail** : http://localhost (via Nginx)
-- **Frontend** : http://localhost:3000
-- **API Backend** : http://localhost:8000
-- **Documentation API** : http://localhost:8000/api/docs
-
-### Identifiants de démonstration
-
-| Rôle | Email | Mot de passe |
-|------|-------|--------------|
-| Super Admin | admin@masap.edu | Admin@2024! |
-| Chef de Département | chef.dept@masap.edu | Chef@2024! |
-| Enseignant | prof.diallo@masap.edu | Prof@2024! |
-| Étudiant | etudiant1@masap.edu | Etud@2024! |
-| Scolarité | scolarite@masap.edu | Scol@2024! |
+Le portail sera accessible sur l'URL configurée dans votre environnement de déploiement.
 
 ## Développement local (sans Docker)
 
@@ -171,9 +157,7 @@ User ──── StudentProfile ──── Cohort ──── Program ──
 
 ## API Documentation
 
-L'API est documentée automatiquement par FastAPI :
-- **Swagger UI** : http://localhost:8000/api/docs
-- **ReDoc** : http://localhost:8000/api/redoc
+L'API est documentée automatiquement par FastAPI (accessible sur `/api/docs` et `/api/redoc`).
 
 ## Variables d'environnement
 
