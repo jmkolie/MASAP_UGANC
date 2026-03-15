@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: masap_uganc
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
@@ -28,10 +28,10 @@ services:
       dockerfile: Dockerfile
     container_name: masap_backend
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/masap_uganc
-      SECRET_KEY: masap-uganc-super-secret-key-change-in-production-2024
-      DEBUG: "false"
-      ALLOWED_ORIGINS: '["http://localhost:3000","http://localhost","http://nginx"]'
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/masap_uganc}
+      SECRET_KEY: ${SECRET_KEY:-change-this-secret-key-in-production}
+      DEBUG: ${DEBUG:-false}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-'["http://localhost:3000","http://localhost","http://nginx"]'}
       UPLOAD_DIR: /app/uploads
     volumes:
       - uploads_data:/app/uploads
