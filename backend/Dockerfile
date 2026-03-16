@@ -16,4 +16,4 @@ RUN mkdir -p /app/uploads
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python -c 'from app.database import Base, engine; from app.models import user, academic, communication, grades; Base.metadata.create_all(bind=engine)' && alembic stamp head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
