@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -18,11 +18,13 @@ router = APIRouter()
 @router.post("/register", response_model=UserResponse, status_code=201)
 async def register_student(
     payload: StudentRegisterRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     """Public endpoint — allows a student to create their own account."""
     from app.models.user import StudentProfile
     from app.utils.helpers import generate_student_id
+    from app.services.email_service import send_registration_email
 
     if db.query(User).filter(User.email == payload.email.lower()).first():
         raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
@@ -43,9 +45,20 @@ async def register_student(
     db.add(user)
     db.flush()
 
-    db.add(StudentProfile(user_id=user.id, student_id=generate_student_id(db)))
+    student_id = generate_student_id(db)
+    db.add(StudentProfile(user_id=user.id, student_id=student_id))
     db.commit()
     db.refresh(user)
+
+    background_tasks.add_task(
+        send_registration_email,
+        to=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        student_id=student_id,
+        password=payload.password,
+    )
+
     return user
 
 
