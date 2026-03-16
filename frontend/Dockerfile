@@ -8,8 +8,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_API_URL=http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io
 RUN npm run build
 
 FROM node:20-alpine AS runner
