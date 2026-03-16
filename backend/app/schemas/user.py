@@ -5,6 +5,14 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 from app.models.user import RoleEnum, EnrollmentStatus
 
 
+class StudentRegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
+
+
 class UserBase(BaseModel):
     email: EmailStr
     first_name: str

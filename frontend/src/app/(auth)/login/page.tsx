@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
+import Link from 'next/link'
 import { login, getDashboardPath } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -119,6 +120,12 @@ export default function LoginPage() {
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
+          <p className="text-center text-sm text-gray-500 mt-5">
+            Pas encore de compte ?{' '}
+            <Link href="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              Créer un compte étudiant
+            </Link>
+          </p>
         </div>
 
       </div>

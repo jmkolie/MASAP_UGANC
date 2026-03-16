@@ -9,10 +9,44 @@ from app.models.user import User, RoleEnum
 from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.deps import get_current_user, log_action
 from app.schemas.auth import Token, RefreshTokenRequest, PasswordChangeRequest, PasswordResetRequest
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, StudentRegisterRequest
 from app.core.security import get_password_hash
 
 router = APIRouter()
+
+
+@router.post("/register", response_model=UserResponse, status_code=201)
+async def register_student(
+    payload: StudentRegisterRequest,
+    db: Session = Depends(get_db),
+):
+    """Public endpoint — allows a student to create their own account."""
+    from app.models.user import StudentProfile
+    from app.utils.helpers import generate_student_id
+
+    if db.query(User).filter(User.email == payload.email.lower()).first():
+        raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
+
+    if len(payload.password) < 8:
+        raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 8 caractères")
+
+    user = User(
+        email=payload.email.lower(),
+        hashed_password=get_password_hash(payload.password),
+        first_name=payload.first_name.strip(),
+        last_name=payload.last_name.strip(),
+        phone=payload.phone,
+        role=RoleEnum.student,
+        is_active=True,
+        is_verified=False,
+    )
+    db.add(user)
+    db.flush()
+
+    db.add(StudentProfile(user_id=user.id, student_id=generate_student_id(db)))
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.post("/login", response_model=Token)
