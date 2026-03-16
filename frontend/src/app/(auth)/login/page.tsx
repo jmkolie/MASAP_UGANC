@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, LogIn, Info } from 'lucide-react'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { login, getDashboardPath } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -16,23 +16,15 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-const DEMO_CREDS = [
-  { role: 'Super Admin', email: 'admin@masap.edu', password: 'Admin@2024!' },
-  { role: 'Chef Département', email: 'chef.dept@masap.edu', password: 'Chef@2024!' },
-  { role: 'Enseignant', email: 'prof.diallo@masap.edu', password: 'Prof@2024!' },
-  { role: 'Étudiant', email: 'etudiant1@masap.edu', password: 'Etud@2024!' },
-]
-
 export default function LoginPage() {
   const router = useRouter()
-  const { setUser, refetch } = useAuth()
+  const { refetch } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
@@ -50,11 +42,6 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const fillCredentials = (email: string, password: string) => {
-    setValue('email', email)
-    setValue('password', password)
   }
 
   return (
@@ -134,35 +121,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Demo credentials */}
-        <div className="px-8 pb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
-                Comptes de démonstration
-              </span>
-            </div>
-            <div className="space-y-2">
-              {DEMO_CREDS.map(({ role, email, password }) => (
-                <button
-                  key={email}
-                  type="button"
-                  onClick={() => fillCredentials(email, password)}
-                  className="w-full text-left flex items-center justify-between px-3 py-2 rounded-md hover:bg-blue-100 transition-colors group"
-                >
-                  <span className="text-xs font-medium text-blue-800">{role}</span>
-                  <span className="text-xs text-blue-500 group-hover:text-blue-700 truncate ml-2 max-w-[160px]">
-                    {email}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-blue-500 mt-2 text-center">
-              Cliquez sur un rôle pour pré-remplir le formulaire
-            </p>
-          </div>
-        </div>
       </div>
 
       <p className="text-center text-blue-200 text-xs mt-6">
