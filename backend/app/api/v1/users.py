@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile, File, status
 from fastapi.responses import StreamingResponse, Response
 from sqlalchemy.orm import Session, joinedload
 
@@ -448,6 +448,84 @@ async def import_users_csv(
         "created": created,
         "errors": errors,
     }
+
+
+# ─── Pending registrations ─────────────────────────────────────────────────────
+
+@router.get("/students/pending", response_model=dict)
+async def list_pending_students(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    """List students awaiting admin approval (is_active=False)."""
+    query = (
+        db.query(User)
+        .options(joinedload(User.student_profile))
+        .filter(User.role == RoleEnum.student, User.is_active.is_(False))
+        .order_by(User.created_at.desc())
+    )
+    result = paginate(query, page, per_page)
+    result["items"] = [StudentResponse.model_validate(u) for u in result["items"]]
+    return result
+
+
+@router.post("/students/{student_id}/approve", response_model=StudentResponse)
+async def approve_student(
+    student_id: int,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    """Approve a pending student registration."""
+    from app.services.email_service import send_account_approved_email
+
+    user = db.query(User).filter(
+        User.id == student_id, User.role == RoleEnum.student
+    ).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Étudiant non trouvé")
+    if user.is_active:
+        raise HTTPException(status_code=400, detail="Ce compte est déjà actif")
+
+    user.is_active = True
+    user.is_verified = True
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+
+    log_action(db, current_user.id, "APPROVE_STUDENT", "User", user.id)
+    background_tasks.add_task(
+        send_account_approved_email,
+        to=user.email,
+        first_name=user.first_name,
+    )
+    return user
+
+
+@router.post("/students/{student_id}/reject", status_code=204)
+async def reject_student(
+    student_id: int,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    """Reject and delete a pending student registration."""
+    from app.services.email_service import send_account_rejected_email
+
+    user = db.query(User).filter(
+        User.id == student_id, User.role == RoleEnum.student, User.is_active.is_(False)
+    ).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Inscription en attente non trouvée")
+
+    email, first_name = user.email, user.first_name
+    log_action(db, current_user.id, "REJECT_STUDENT", "User", user.id, f"Rejected {email}")
+    db.delete(user)
+    db.commit()
+
+    background_tasks.add_task(send_account_rejected_email, to=email, first_name=first_name)
 
 
 # ─── User CRUD (avec paramètre dynamique — doit être EN DERNIER) ────────────────

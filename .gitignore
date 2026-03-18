@@ -35,5 +35,14 @@ frontend/out/
 # Uploads (données locales)
 backend/uploads/
 
+# Alembic compiled
+backend/alembic/versions/__pycache__/
+
+# Test cache
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # Logs
 *.log

@@ -2,21 +2,37 @@ from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User, RoleEnum
-from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token
+from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token, create_reset_token
 from app.core.deps import get_current_user, log_action
-from app.schemas.auth import Token, RefreshTokenRequest, PasswordChangeRequest, PasswordResetRequest
+from app.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+from app.schemas.auth import (
+    Token,
+    RefreshTokenRequest,
+    PasswordChangeRequest,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+)
 from app.schemas.user import UserResponse, StudentRegisterRequest
 from app.core.security import get_password_hash
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
+@limiter.limit("5/minute")
 async def register_student(
+    request: Request,
     payload: StudentRegisterRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -39,7 +55,7 @@ async def register_student(
         last_name=payload.last_name.strip(),
         phone=payload.phone,
         role=RoleEnum.student,
-        is_active=True,
+        is_active=False,
         is_verified=False,
     )
     db.add(user)
@@ -57,12 +73,14 @@ async def register_student(
         last_name=user.last_name,
         student_id=student_id,
         password=payload.password,
+        pending_validation=True,
     )
 
     return user
 
 
 @router.post("/login", response_model=Token)
+@limiter.limit("10/minute")
 async def login(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -77,7 +95,12 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Compte désactivé. Contactez l'administration.")
+        detail = (
+            "Votre compte est en attente de validation par l'administration."
+            if not user.is_verified
+            else "Compte désactivé. Contactez l'administration."
+        )
+        raise HTTPException(status_code=400, detail=detail)
 
     # Update last login
     user.last_login = datetime.utcnow()
@@ -151,8 +174,53 @@ async def change_password(
 
 
 @router.post("/forgot-password")
-async def forgot_password(payload: PasswordResetRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+async def forgot_password(
+    request: Request,
+    payload: PasswordResetRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """Request a password reset link (email)."""
+    from app.services.email_service import send_password_reset_email
+
     user = db.query(User).filter(User.email == payload.email.lower()).first()
+    if user and user.is_active:
+        token = create_reset_token(user.email)
+        reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+        background_tasks.add_task(
+            send_password_reset_email,
+            to=user.email,
+            first_name=user.first_name,
+            reset_link=reset_link,
+        )
+        if settings.DEBUG:
+            logger.info("🔑 [DEBUG] Reset link for %s: %s", user.email, reset_link)
     # Always return success to avoid email enumeration
     return {"message": "Si l'email existe, un lien de réinitialisation vous a été envoyé."}
+
+
+@router.post("/reset-password")
+async def reset_password(payload: PasswordResetConfirm, db: Session = Depends(get_db)):
+    """Reset password using a valid reset token."""
+    token_data = decode_token(payload.token)
+    if not token_data or token_data.get("type") != "reset":
+        raise HTTPException(status_code=400, detail="Lien de réinitialisation invalide ou expiré")
+
+    email = token_data.get("sub")
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=400, detail="Lien de réinitialisation invalide ou expiré")
+
+    if len(payload.new_password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Le mot de passe doit contenir au moins 8 caractères",
+        )
+
+    user.hashed_password = get_password_hash(payload.new_password)
+    user.updated_at = datetime.utcnow()
+    db.commit()
+
+    log_action(db, user.id, "RESET_PASSWORD", "User", user.id)
+    return {"message": "Mot de passe réinitialisé avec succès"}
