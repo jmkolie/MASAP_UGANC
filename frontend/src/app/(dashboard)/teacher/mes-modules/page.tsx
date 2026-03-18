@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { BookMarked, Users, FileText } from 'lucide-react'
+import { BookMarked, Users, FileText, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { EmptyState } from '@/components/ui/EmptyState'
 import api from '@/lib/api'
@@ -10,6 +11,7 @@ import type { Module } from '@/types'
 export default function MesModulesPage() {
   const [modules, setModules] = useState<Module[]>([])
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     api.get('/academic/my-modules')
@@ -38,7 +40,11 @@ export default function MesModulesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {modules.map((m) => (
-            <div key={m.id} className="bg-white rounded-xl border border-gray-100 shadow-card hover:shadow-card-hover transition-shadow p-5">
+            <button
+              key={m.id}
+              onClick={() => router.push(`/teacher/mes-modules/${m.id}`)}
+              className="bg-white rounded-xl border border-gray-100 shadow-card hover:shadow-card-hover hover:border-primary-200 transition-all p-5 text-left w-full"
+            >
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
                   <BookMarked className="w-5 h-5 text-primary-700" />
@@ -48,7 +54,7 @@ export default function MesModulesPage() {
                 </span>
               </div>
               <h3 className="text-sm font-semibold text-gray-800 mb-1">{m.name}</h3>
-              <p className="text-xs text-gray-500 mb-3">{m.code}</p>
+              <p className="text-xs text-gray-500 mb-3 font-mono">{m.code}</p>
               <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
                 <span>{m.credits} crédits</span>
                 <span>•</span>
@@ -57,23 +63,16 @@ export default function MesModulesPage() {
               {m.description && (
                 <p className="text-xs text-gray-400 mb-4 line-clamp-2">{m.description}</p>
               )}
-              <div className="flex gap-2">
-                <Link
-                  href="/teacher/saisie-notes"
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-primary-700 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  Notes
-                </Link>
-                <Link
-                  href="/teacher/mes-etudiants"
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  Étudiants
-                </Link>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <div className="flex gap-3 text-xs text-gray-400">
+                  <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" />Ressources</span>
+                  <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />Évaluations</span>
+                </div>
+                <span className="flex items-center gap-1 text-xs font-medium text-primary-600">
+                  Gérer <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}
