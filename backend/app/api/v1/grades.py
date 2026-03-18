@@ -600,3 +600,213 @@ async def upload_assignment_file(
     a.updated_at = datetime.utcnow()
     db.commit()
     return {"id": a.id, "file_path": a.file_path}
+
+
+@router.get("/assignments/student", response_model=list)
+async def list_student_assignments(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List active assignments for the current student's program modules."""
+    if current_user.role != RoleEnum.student:
+        raise HTTPException(status_code=403, detail="Réservé aux étudiants")
+
+    profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+    if not profile:
+        return []
+
+    # Get all modules for student's program
+    module_ids = [
+        m.id for m in db.query(Module).filter(Module.program_id == profile.program_id).all()
+    ] if profile.program_id else []
+
+    if not module_ids:
+        return []
+
+    assignments = (
+        db.query(Assignment)
+        .filter(Assignment.module_id.in_(module_ids), Assignment.is_active == True)
+        .order_by(Assignment.due_date.asc())
+        .all()
+    )
+
+    # Get student's existing submissions
+    existing = {
+        s.assignment_id: s
+        for s in db.query(AssignmentSubmission).filter(
+            AssignmentSubmission.student_id == profile.id
+        ).all()
+    }
+
+    result = []
+    for a in assignments:
+        sub = existing.get(a.id)
+        result.append({
+            "id": a.id,
+            "title": a.title,
+            "description": a.description,
+            "module_id": a.module_id,
+            "module_name": a.module.name if a.module else None,
+            "teacher_id": a.teacher_id,
+            "due_date": a.due_date.isoformat() if a.due_date else None,
+            "max_score": float(a.max_score) if a.max_score else 20,
+            "file_path": a.file_path,
+            "accepted_file_types": a.accepted_file_types,
+            "is_active": a.is_active,
+            "created_at": a.created_at.isoformat(),
+            "submission": {
+                "id": sub.id,
+                "file_path": sub.file_path,
+                "submitted_at": sub.submitted_at.isoformat(),
+                "score": float(sub.score) if sub.score is not None else None,
+                "feedback": sub.feedback,
+                "graded_at": sub.graded_at.isoformat() if sub.graded_at else None,
+            } if sub else None,
+        })
+    return result
+
+
+@router.post("/assignments/{assignment_id}/submit", status_code=201)
+async def submit_assignment(
+    assignment_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Student submits a file for an assignment."""
+    if current_user.role != RoleEnum.student:
+        raise HTTPException(status_code=403, detail="Réservé aux étudiants")
+
+    a = db.query(Assignment).filter(Assignment.id == assignment_id).first()
+    if not a or not a.is_active:
+        raise HTTPException(status_code=404, detail="Devoir non trouvé ou inactif")
+
+    profile = db.query(StudentProfile).filter(StudentProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=400, detail="Profil étudiant introuvable")
+
+    # Check file type if restricted
+    if a.accepted_file_types:
+        allowed = [t.strip().lower() for t in a.accepted_file_types.split(",")]
+        ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else ""
+        if ext not in allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Type de fichier non accepté. Types autorisés : {a.accepted_file_types}"
+            )
+
+    # Save file
+    os.makedirs(os.path.join(settings.UPLOAD_DIR, "submissions"), exist_ok=True)
+    ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else "bin"
+    filename = f"submission_{assignment_id}_{profile.id}_{int(datetime.utcnow().timestamp())}.{ext}"
+    save_path = os.path.join(settings.UPLOAD_DIR, "submissions", filename)
+    contents = await file.read()
+    with open(save_path, "wb") as f:
+        f.write(contents)
+
+    # Upsert submission (allow re-submit)
+    existing = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.assignment_id == assignment_id,
+        AssignmentSubmission.student_id == profile.id,
+    ).first()
+
+    if existing:
+        existing.file_path = f"/uploads/submissions/{filename}"
+        existing.submitted_at = datetime.utcnow()
+        existing.score = None
+        existing.feedback = None
+        existing.graded_at = None
+        db.commit()
+        sub = existing
+    else:
+        sub = AssignmentSubmission(
+            assignment_id=assignment_id,
+            student_id=profile.id,
+            file_path=f"/uploads/submissions/{filename}",
+        )
+        db.add(sub)
+        db.commit()
+        db.refresh(sub)
+
+    return {
+        "id": sub.id,
+        "assignment_id": sub.assignment_id,
+        "file_path": sub.file_path,
+        "submitted_at": sub.submitted_at.isoformat(),
+    }
+
+
+@router.get("/assignments/{assignment_id}/submissions", response_model=list)
+async def list_assignment_submissions(
+    assignment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Teacher views all submissions for one of their assignments."""
+    a = db.query(Assignment).filter(Assignment.id == assignment_id).first()
+    if not a:
+        raise HTTPException(status_code=404, detail="Devoir non trouvé")
+    if a.teacher_id != current_user.id and current_user.role not in [RoleEnum.super_admin, RoleEnum.dept_head]:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+
+    submissions = (
+        db.query(AssignmentSubmission)
+        .options(joinedload(AssignmentSubmission.student))
+        .filter(AssignmentSubmission.assignment_id == assignment_id)
+        .order_by(AssignmentSubmission.submitted_at.asc())
+        .all()
+    )
+
+    result = []
+    for s in submissions:
+        student_user = db.query(User).filter(User.id == s.student.user_id).first() if s.student else None
+        result.append({
+            "id": s.id,
+            "student_id": s.student_id,
+            "student_name": f"{student_user.first_name} {student_user.last_name}" if student_user else "—",
+            "student_matricule": s.student.student_id if s.student else "—",
+            "file_path": s.file_path,
+            "submitted_at": s.submitted_at.isoformat(),
+            "score": float(s.score) if s.score is not None else None,
+            "feedback": s.feedback,
+            "graded_at": s.graded_at.isoformat() if s.graded_at else None,
+        })
+    return result
+
+
+@router.put("/submissions/{submission_id}/grade", status_code=200)
+async def grade_submission(
+    submission_id: int,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Teacher grades a student submission."""
+    sub = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == submission_id).first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Rendu non trouvé")
+
+    a = db.query(Assignment).filter(Assignment.id == sub.assignment_id).first()
+    if not a:
+        raise HTTPException(status_code=404, detail="Devoir non trouvé")
+    if a.teacher_id != current_user.id and current_user.role not in [RoleEnum.super_admin, RoleEnum.dept_head]:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+
+    score = payload.get("score")
+    if score is not None:
+        if float(score) < 0 or float(score) > float(a.max_score):
+            raise HTTPException(status_code=400, detail=f"La note doit être entre 0 et {a.max_score}")
+        sub.score = Decimal(str(score))
+        sub.graded_at = datetime.utcnow()
+        sub.graded_by = current_user.id
+
+    if "feedback" in payload:
+        sub.feedback = payload["feedback"]
+
+    db.commit()
+    return {
+        "id": sub.id,
+        "score": float(sub.score) if sub.score is not None else None,
+        "feedback": sub.feedback,
+        "graded_at": sub.graded_at.isoformat() if sub.graded_at else None,
+    }

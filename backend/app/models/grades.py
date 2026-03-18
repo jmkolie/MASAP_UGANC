@@ -153,6 +153,7 @@ class Assignment(Base):
     due_date = Column(DateTime, nullable=True)
     max_score = Column(Numeric(5, 2), default=20)
     file_path = Column(String(500), nullable=True)
+    accepted_file_types = Column(String(200), nullable=True)  # e.g. "pdf,docx,zip"
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

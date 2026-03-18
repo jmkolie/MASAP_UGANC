@@ -12,8 +12,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN mkdir -p /app/uploads
+RUN mkdir -p /app/uploads /app/uploads/assignments /app/uploads/submissions
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python -c 'from app.database import Base, engine; from app.models import user, academic, communication, grades; Base.metadata.create_all(bind=engine)' && alembic stamp head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

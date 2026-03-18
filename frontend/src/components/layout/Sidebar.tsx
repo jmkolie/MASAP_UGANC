@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, BookOpen, GraduationCap, Calendar,
   Bell, FileText, Settings, Award, ClipboardList, BarChart3,
   Home, User, BookMarked, Star, Download, Clock, MessageSquare,
-  CheckSquare, ChevronRight, Building, Layers,
+  CheckSquare, ChevronRight, Building, Layers, UserCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Role } from '@/types'
@@ -19,6 +19,7 @@ interface NavItem {
 const adminNav: NavItem[] = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: Users },
+  { label: 'Inscriptions en attente', href: '/admin/inscriptions', icon: UserCheck },
   { label: 'Facultés & Dépmt.', href: '/admin/departements', icon: Building },
   { label: 'Programmes', href: '/admin/programmes', icon: BookOpen },
   { label: 'Années Académiques', href: '/admin/annees-academiques', icon: Calendar },
@@ -54,6 +55,7 @@ const studentNav: NavItem[] = [
   { label: 'Mes modules', href: '/student/mes-modules', icon: BookMarked },
   { label: 'Mes notes', href: '/student/mes-notes', icon: Star },
   { label: 'Mes relevés', href: '/student/mes-releves', icon: Download },
+  { label: 'Devoirs', href: '/student/devoirs', icon: ClipboardList },
   { label: 'Documents', href: '/student/documents', icon: FileText },
   { label: 'Emploi du temps', href: '/student/emploi-du-temps', icon: Clock },
   { label: 'Annonces', href: '/student/annonces', icon: Bell },
