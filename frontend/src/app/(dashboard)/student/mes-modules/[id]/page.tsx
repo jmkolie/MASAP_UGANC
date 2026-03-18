@@ -120,6 +120,8 @@ export default function ModuleDetailPage() {
     }
   }
 
+  const [activeTab, setActiveTab] = useState<'ressources' | 'evaluations'>('ressources')
+
   const docTypes = Array.from(new Set(documents.map(d => d.document_type)))
   const filteredDocs = activeDocType ? documents.filter(d => d.document_type === activeDocType) : documents
 
@@ -144,18 +146,33 @@ export default function ModuleDetailPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-        {/* ── Bloc Ressources ── */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2 pb-1">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-blue-700" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-gray-800">Ressources</h2>
-              <p className="text-xs text-gray-400">{documents.length} support(s)</p>
-            </div>
-          </div>
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('ressources')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'ressources' ? 'border-primary-700 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          <FileText className="w-4 h-4" />
+          Ressources
+          <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeTab === 'ressources' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'}`}>
+            {documents.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab('evaluations')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'evaluations' ? 'border-primary-700 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          <ClipboardList className="w-4 h-4" />
+          Évaluations
+          <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeTab === 'evaluations' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'}`}>
+            {assignments.length}
+          </span>
+        </button>
+      </div>
+
+      <div>
+        {/* ── Onglet Ressources ── */}
+        {activeTab === 'ressources' && <section className="space-y-3">
 
           {docTypes.length > 1 && (
             <div className="flex gap-2 flex-wrap">
@@ -203,19 +220,10 @@ export default function ModuleDetailPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
-        {/* ── Bloc Évaluations ── */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2 pb-1">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4 text-amber-700" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-gray-800">Évaluations</h2>
-              <p className="text-xs text-gray-400">{assignments.length} devoir(s)</p>
-            </div>
-          </div>
+        {/* ── Onglet Évaluations ── */}
+        {activeTab === 'evaluations' && <section className="space-y-3">
 
           {assignments.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
@@ -329,7 +337,7 @@ export default function ModuleDetailPage() {
               })}
             </div>
           )}
-        </section>
+        </section>}
       </div>
     </div>
   )
