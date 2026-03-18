@@ -501,7 +501,38 @@ async def get_module_teachers(
     query = db.query(TeachingAssignment).filter(TeachingAssignment.module_id == module_id)
     if academic_year_id:
         query = query.filter(TeachingAssignment.academic_year_id == academic_year_id)
-    return [TeachingAssignmentResponse.model_validate(a) for a in query.all()]
+    assignments = query.all()
+    result = []
+    for a in assignments:
+        teacher = db.query(User).filter(User.id == a.teacher_id).first()
+        item = {
+            "id": a.id,
+            "teacher_id": a.teacher_id,
+            "module_id": a.module_id,
+            "academic_year_id": a.academic_year_id,
+            "is_primary": a.is_primary,
+            "created_at": a.created_at,
+            "teacher_name": f"{teacher.first_name} {teacher.last_name}" if teacher else "—",
+        }
+        result.append(item)
+    return result
+
+
+@router.delete("/modules/{module_id}/teachers/{assignment_id}", status_code=204)
+async def remove_teacher_from_module(
+    module_id: int,
+    assignment_id: int,
+    current_user: User = Depends(get_dept_head_or_admin),
+    db: Session = Depends(get_db),
+):
+    assignment = db.query(TeachingAssignment).filter(
+        TeachingAssignment.id == assignment_id,
+        TeachingAssignment.module_id == module_id,
+    ).first()
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Affectation non trouvée")
+    db.delete(assignment)
+    db.commit()
 
 
 # ─── Enrollments ────────────────────────────────────────────────────────────────
