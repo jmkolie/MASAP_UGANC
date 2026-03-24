@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation MASAP-UGANC — Déploiement & Configuration</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1e293b;
+      background: #fff;
+      padding: 40px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1e3a5f;
+      border-bottom: 3px solid #1e3a5f;
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-top: 36px;
+      margin-bottom: 10px;
+      padding: 6px 12px;
+      background: #eef4fb;
+      border-left: 4px solid #1e3a5f;
+      border-radius: 3px;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+    p { margin-bottom: 10px; }
+    ul, ol { margin: 8px 0 12px 24px; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: #be185d;
+    }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 12px 0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-red   { background: #fee2e2; color: #dc2626; }
+    .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+    .badge-amber { background: #fef3c7; color: #d97706; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+    th {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .alert {
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+    .alert-warn  { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert-info  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .alert-ok    { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .alert-err   { background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; }
+    .cover {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 36px;
+    }
+    .cover h1 { border: none; font-size: 32px; }
+    .cover .sub { font-size: 16px; color: #64748b; margin-top: 8px; }
+    .cover .meta { font-size: 13px; color: #94a3b8; margin-top: 20px; }
+    .toc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px 28px; margin: 24px 0 40px; }
+    .toc h2 { margin-top: 0; background: none; border: none; padding: 0; font-size: 16px; color: #334155; }
+    .toc ol { margin-top: 10px; }
+    .toc li { margin-bottom: 5px; }
+    .step {
+      display: flex;
+      gap: 14px;
+      margin: 10px 0;
+      align-items: flex-start;
+    }
+    .step-num {
+      min-width: 28px;
+      height: 28px;
+      background: #1e3a5f;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .step-body { flex: 1; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+    @media print {
+      body { padding: 20px 30px; }
+      pre { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== COUVERTURE ===== -->
+<div class="cover">
+  <h1>MASAP-UGANC</h1>
+  <div class="sub">Module d'Administration et de Suivi Académique et Pédagogique<br>Université Gamal Abdel Nasser de Conakry — FSTS</div>
+  <div class="meta">
+    Documentation technique — Déploiement &amp; Configuration<br>
+    Version 1.0 &nbsp;·&nbsp; Mars 2026
+  </div>
+</div>
+
+<!-- ===== TABLE DES MATIÈRES ===== -->
+<div class="toc">
+  <h2>Table des matières</h2>
+  <ol>
+    <li>Vue d'ensemble du projet</li>
+    <li>Architecture technique</li>
+    <li>Structure du dépôt</li>
+    <li>Configuration locale (développement)</li>
+    <li>Infrastructure VPS — Contabo</li>
+    <li>Installation de Coolify</li>
+    <li>Déploiement via Coolify</li>
+    <li>Variables d'environnement</li>
+    <li>Dockerfiles de référence</li>
+    <li>Base de données — Bootstrap &amp; Migrations</li>
+    <li>Problèmes rencontrés &amp; solutions</li>
+    <li>URLs de production</li>
+    <li>Comptes par défaut</li>
+    <li>Checklist de déploiement</li>
+  </ol>
+</div>
+
+<!-- ===== 1. VUE D'ENSEMBLE ===== -->
+<h2>1. Vue d'ensemble du projet</h2>
+<p>
+  MASAP-UGANC est une plateforme web de gestion académique destinée à la Faculté des Sciences Techniques et Spécialisées (FSTS) de l'UGANC. Elle permet la gestion des étudiants, enseignants, modules, notes, devoirs, documents pédagogiques et annonces.
+</p>
+<table>
+  <tr><th>Élément</th><th>Détail</th></tr>
+  <tr><td>Frontend</td><td>Next.js 14 (App Router) — TypeScript — Tailwind CSS</td></tr>
+  <tr><td>Backend</td><td>FastAPI (Python 3.11) — SQLAlchemy — Alembic</td></tr>
+  <tr><td>Base de données</td><td>PostgreSQL 16</td></tr>
+  <tr><td>Authentification</td><td>JWT (Bearer Token)</td></tr>
+  <tr><td>Proxy</td><td>Nginx (reverse proxy)</td></tr>
+  <tr><td>Conteneurisation</td><td>Docker + Docker Compose</td></tr>
+  <tr><td>Hébergement</td><td>Contabo Storage VPS (77.237.247.61)</td></tr>
+  <tr><td>PaaS</td><td>Coolify v4 (auto-deploy depuis GitHub)</td></tr>
+</table>
+
+<!-- ===== 2. ARCHITECTURE ===== -->
+<h2>2. Architecture technique</h2>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Internet / Browser                   │
+└──────────────────────────┬──────────────────────────────┘
+                           │ HTTP :80 / :443
+                ┌──────────▼──────────┐
+                │     Nginx (proxy)   │
+                └────┬───────────┬────┘
+                     │           │
+          ┌──────────▼──┐   ┌────▼──────────┐
+          │  Frontend   │   │   Backend     │
+          │  Next.js    │   │   FastAPI     │
+          │  Port 3000  │   │   Port 8000   │
+          └─────────────┘   └──────┬────────┘
+                                   │
+                         ┌─────────▼─────────┐
+                         │   PostgreSQL 16    │
+                         │   Port 5432        │
+                         └────────────────────┘</code></pre>
+<p>Sur Coolify, chaque service (frontend, backend, PostgreSQL) est déployé comme une ressource indépendante dans le même projet. Les services communiquent via le réseau Docker interne de Coolify.</p>
+
+<!-- ===== 3. STRUCTURE ===== -->
+<h2>3. Structure du dépôt</h2>
+<pre><code>MASAP_UGANC/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/          # Routes FastAPI (users, grades, academic…)
+│   │   ├── core/            # Security (JWT), dépendances
+│   │   ├── models/          # Modèles SQLAlchemy
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── services/        # Logique métier
+│   │   ├── database.py      # Connexion DB
+│   │   ├── config.py        # Configuration (env vars)
+│   │   └── main.py          # Point d'entrée FastAPI
+│   ├── alembic/             # Migrations DB
+│   ├── scripts/
+│   │   └── seed.py          # Données initiales (utilisateurs, modules…)
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── app/             # Pages Next.js (App Router)
+│   │   │   ├── (auth)/login/
+│   │   │   └── (dashboard)/
+│   │   │       ├── admin/
+│   │   │       ├── teacher/
+│   │   │       ├── student/
+│   │   │       └── dept-head/
+│   │   ├── components/      # Composants réutilisables
+│   │   ├── lib/             # Utilitaires, API client (axios)
+│   │   └── types/           # Types TypeScript
+│   ├── public/
+│   │   └── logo.png         # Logo FSTS-UGANC / CEA-PCMT
+│   ├── next.config.js
+│   ├── package.json
+│   └── Dockerfile
+├── nginx/
+│   └── nginx.conf
+├── docker-compose.yml
+└── .gitignore</code></pre>
+
+<!-- ===== 4. DEV LOCAL ===== -->
+<h2>4. Configuration locale (développement)</h2>
+<h3>Prérequis</h3>
+<ul>
+  <li>Docker Desktop installé</li>
+  <li>Node.js 20+ (optionnel si on utilise Docker)</li>
+  <li>Python 3.11+ (optionnel si on utilise Docker)</li>
+</ul>
+<h3>Lancement avec Docker Compose</h3>
+<pre><code>cd MASAP_UGANC
+docker-compose up --build</code></pre>
+<p>Les services seront disponibles :</p>
+<ul>
+  <li>Frontend : <code>http://localhost:3000</code></li>
+  <li>Backend API : <code>http://localhost:8000</code></li>
+  <li>Docs Swagger : <code>http://localhost:8000/docs</code></li>
+</ul>
+<h3>Lancement sans Docker (backend)</h3>
+<pre><code>cd backend
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+python -m scripts.seed
+uvicorn app.main:app --reload</code></pre>
+<h3>Lancement sans Docker (frontend)</h3>
+<pre><code>cd frontend
+npm install --legacy-peer-deps
+npm run dev</code></pre>
+
+<!-- ===== 5. VPS ===== -->
+<h2>5. Infrastructure VPS — Contabo</h2>
+<table>
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Fournisseur</td><td>Contabo</td></tr>
+  <tr><td>Offre</td><td>Storage VPS</td></tr>
+  <tr><td>IP publique</td><td>77.237.247.61</td></tr>
+  <tr><td>OS</td><td>Ubuntu 22.04 LTS</td></tr>
+  <tr><td>Accès SSH</td><td><code>ssh root@77.237.247.61</code></td></tr>
+  <tr><td>Nom de domaine</td><td>Pas encore (utilisation de sslip.io)</td></tr>
+</table>
+<div class="alert alert-info">
+  <strong>sslip.io</strong> — Service DNS wildcard gratuit. Une URL comme <code>http://abc123.77.237.247.61.sslip.io</code> pointe automatiquement vers <code>77.237.247.61</code>. Coolify génère ces URLs automatiquement pour chaque ressource déployée.
+</div>
+
+<!-- ===== 6. COOLIFY ===== -->
+<h2>6. Installation de Coolify</h2>
+<p>Coolify est un PaaS self-hosted permettant de déployer plusieurs applications depuis GitHub avec auto-deploy, gestion des env vars et des domaines.</p>
+<h3>Installation</h3>
+<pre><code>ssh root@77.237.247.61
+curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash</code></pre>
+<p>Coolify sera accessible sur <code>http://77.237.247.61:8000</code> (ou port 80 après config).</p>
+
+<h3>Fix critique — Désactiver IPv6 pour Docker</h3>
+<div class="alert alert-err">
+  <strong>Problème :</strong> PostgreSQL 16/18 dans Docker retourne une erreur <code>ParseAddr: unexpected IPv6 address</code> au démarrage. Docker tente de lier l'adresse IPv6 qui n'est pas gérée correctement.
+</div>
+<p><strong>Solution :</strong> Désactiver IPv6 dans le daemon Docker sur le VPS :</p>
+<pre><code>ssh root@77.237.247.61
+echo '{"ipv6": false}' > /etc/docker/daemon.json
+systemctl restart docker</code></pre>
+<p>Relancer ensuite la ressource PostgreSQL dans Coolify.</p>
+
+<h3>Configuration GitHub</h3>
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">Dans Coolify : <em>Sources</em> → Ajouter GitHub App</div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">Autoriser l'accès au dépôt <code>MASAP_UGANC</code></div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">Activer "Auto Deploy on Push" pour déploiement automatique à chaque <code>git push</code></div>
+</div>
+
+<!-- ===== 7. DÉPLOIEMENT ===== -->
+<h2>7. Déploiement via Coolify</h2>
+<p>Le projet est déployé avec <strong>3 ressources distinctes</strong> dans Coolify :</p>
+
+<h3>7.1 PostgreSQL (Base de données)</h3>
+<ul>
+  <li>Type : PostgreSQL 16 (via l'interface Coolify, pas via Dockerfile)</li>
+  <li>Database name : <code>masap_uganc</code></li>
+  <li>Username : <code>postgres</code></li>
+  <li>Récupérer l'URL interne dans : <em>Ressource → Connection → Postgres URL (internal)</em></li>
+</ul>
+<div class="alert alert-warn">
+  <strong>Important :</strong> Utiliser le "Postgres URL (internal)" de Coolify pour <code>DATABASE_URL</code> dans le backend. Le nom de la ressource (ex: <code>masap-db</code>) n'est <strong>pas</strong> le hostname Docker — Coolify utilise un ID interne (ex: <code>m11323fx9sz625gfwyx1sygl</code>).
+</div>
+
+<h3>7.2 Backend (FastAPI)</h3>
+<ul>
+  <li>Type : Dockerfile (pointe vers <code>./backend/Dockerfile</code>)</li>
+  <li>Port : <code>8000</code></li>
+  <li>Branche : <code>main</code></li>
+</ul>
+
+<h3>7.3 Frontend (Next.js)</h3>
+<ul>
+  <li>Type : Dockerfile (pointe vers <code>./frontend/Dockerfile</code>)</li>
+  <li>Port : <code>3000</code></li>
+  <li>Branche : <code>main</code></li>
+</ul>
+
+<!-- ===== 8. ENV VARS ===== -->
+<h2>8. Variables d'environnement</h2>
+<h3>Backend — Variables Coolify</h3>
+<table>
+  <tr><th>Variable</th><th>Valeur / exemple</th><th>Description</th></tr>
+  <tr><td><code>DATABASE_URL</code></td><td><code>postgresql://postgres:xxxx@&lt;internal-host&gt;:5432/masap_uganc</code></td><td>URL interne PostgreSQL (depuis Coolify)</td></tr>
+  <tr><td><code>SECRET_KEY</code></td><td>chaîne aléatoire longue</td><td>Clé de signature JWT</td></tr>
+  <tr><td><code>DEBUG</code></td><td><code>false</code></td><td>Mode debug (toujours false en prod)</td></tr>
+  <tr><td><code>ALLOWED_ORIGINS</code></td><td><code>["http://zw00l6d0b136lbmpb5q7dpb6.77.237.247.61.sslip.io","http://77.237.247.61"]</code></td><td>CORS — URLs du frontend autorisées</td></tr>
+  <tr><td><code>UPLOAD_DIR</code></td><td><code>/app/uploads</code></td><td>Dossier uploads fichiers</td></tr>
+</table>
+
+<div class="alert alert-warn">
+  <strong>CORS :</strong> Si le frontend est accessible via une URL sslip.io, cette URL <strong>doit</strong> être dans <code>ALLOWED_ORIGINS</code>. Sans ça, toutes les requêtes API échouent silencieusement avec "Email ou mot de passe incorrect".
+</div>
+
+<h3>Frontend — Variable baked au build</h3>
+<table>
+  <tr><th>Variable</th><th>Valeur</th><th>Note</th></tr>
+  <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td><code>http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io</code></td><td>URL publique du backend. <strong>Doit être dans le Dockerfile</strong> (pas dans Coolify env vars — Next.js bake ces variables au build)</td></tr>
+</table>
+<div class="alert alert-err">
+  <strong>Piège Next.js :</strong> Les variables <code>NEXT_PUBLIC_*</code> sont injectées à la compilation (<code>npm run build</code>), pas à l'exécution. Les env vars Coolify sont injectées au runtime → elles sont ignorées pour ces variables. Solution : les mettre directement dans le Dockerfile.
+</div>
+
+<!-- ===== 9. DOCKERFILES ===== -->
+<h2>9. Dockerfiles de référence</h2>
+<h3>frontend/Dockerfile</h3>
+<pre><code>FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package.json ./
+RUN npm install --legacy-peer-deps
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_API_URL=http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+USER nextjs
+EXPOSE 3000
+ENV PORT 3000
+CMD ["node", "server.js"]</code></pre>
+<div class="alert alert-info">
+  La ligne <code>COPY --from=builder /app/public ./public</code> est obligatoire : le mode <em>standalone</em> de Next.js n'inclut pas le dossier <code>public/</code> automatiquement (le logo et autres assets statiques ne s'afficheraient pas).
+</div>
+
+<h3>backend/Dockerfile</h3>
+<pre><code>FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN mkdir -p /app/uploads
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "python -c 'from app.database import Base, engine; from app.models import user, academic, communication, grades; Base.metadata.create_all(bind=engine)' && alembic stamp head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"]</code></pre>
+
+<!-- ===== 10. DB BOOTSTRAP ===== -->
+<h2>10. Base de données — Bootstrap &amp; Migrations</h2>
+<p>Sur une <strong>base de données vierge</strong> (nouveau déploiement), la séquence d'initialisation est :</p>
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body"><strong>create_all</strong> — Crée toutes les tables depuis les modèles SQLAlchemy</div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body"><strong>alembic stamp head</strong> — Marque la DB comme "à jour" dans la table alembic_version (sans réexécuter les migrations)</div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body"><strong>python -m scripts.seed</strong> — Insère les données initiales (admin, enseignants, étudiants, modules, spécialités…)</div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body"><strong>uvicorn</strong> — Lance le serveur API</div>
+</div>
+
+<div class="alert alert-warn">
+  <strong>Pourquoi cette séquence ?</strong> Si on exécute <code>alembic upgrade head</code> sur une DB vierge, la migration 001 tente d'ajouter des colonnes à des tables qui n'existent pas encore → erreur. <code>create_all</code> crée les tables d'abord, puis <code>stamp head</code> dit à Alembic qu'elles sont déjà à jour.
+</div>
+
+<h3>Pour les mises à jour futures (DB existante)</h3>
+<p>Remplacer le CMD du Dockerfile par :</p>
+<pre><code>alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000</code></pre>
+<p>Le script seed est idempotent (vérifie avant d'insérer) mais il vaut mieux ne pas le relancer à chaque démarrage sur une DB en production.</p>
+
+<!-- ===== 11. PROBLÈMES ===== -->
+<h2>11. Problèmes rencontrés &amp; solutions</h2>
+
+<h3>P1 — PostgreSQL ne démarre pas (ParseAddr IPv6)</h3>
+<div class="alert alert-err">
+  <strong>Erreur :</strong> <code>ParseAddr("::1"): unexpected IPv6 address</code>
+</div>
+<p><strong>Cause :</strong> Docker tente de binder IPv6, non supporté dans cette configuration.<br>
+<strong>Solution :</strong></p>
+<pre><code>echo '{"ipv6": false}' > /etc/docker/daemon.json
+systemctl restart docker</code></pre>
+
+<h3>P2 — "Email ou mot de passe incorrect" (CORS)</h3>
+<div class="alert alert-err">
+  <strong>Symptôme :</strong> Login échoue alors que les 41 utilisateurs sont bien en base. Les requêtes API sont bloquées par CORS.
+</div>
+<p><strong>Cause :</strong> <code>ALLOWED_ORIGINS</code> ne contenait pas l'URL sslip.io du frontend.<br>
+<strong>Solution :</strong> Ajouter l'URL complète du frontend dans <code>ALLOWED_ORIGINS</code> dans les env vars Coolify du backend.</p>
+
+<h3>P3 — Le logo ne s'affiche pas en production</h3>
+<div class="alert alert-err">
+  <strong>Symptôme :</strong> <code>/logo.png</code> retourne 404 en production.
+</div>
+<p><strong>Cause :</strong> Next.js en mode <code>standalone</code> ne copie pas le dossier <code>public/</code> dans le build final.<br>
+<strong>Solution :</strong> Ajouter dans le Dockerfile :</p>
+<pre><code>COPY --from=builder /app/public ./public</code></pre>
+
+<h3>P4 — NEXT_PUBLIC_API_URL non appliqué</h3>
+<div class="alert alert-err">
+  <strong>Symptôme :</strong> Le frontend appelle <code>localhost:8000</code> au lieu du backend en production.
+</div>
+<p><strong>Cause :</strong> Les variables <code>NEXT_PUBLIC_*</code> sont injectées au <em>build</em> dans Next.js, pas au runtime. Les env vars Coolify sont runtime.<br>
+<strong>Solution :</strong> Hardcoder l'URL dans le Dockerfile :</p>
+<pre><code>ENV NEXT_PUBLIC_API_URL=http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io</code></pre>
+
+<h3>P5 — Git push timeout (HTTP 408)</h3>
+<div class="alert alert-err">
+  <strong>Symptôme :</strong> <code>git push</code> échoue avec timeout, dépôt trop lourd (98 MB).
+</div>
+<p><strong>Cause :</strong> Les dossiers <code>.next/</code> et <code>node_modules/</code> étaient dans l'historique Git.<br>
+<strong>Solution :</strong> Recréer l'historique avec une branche orpheline :</p>
+<pre><code>git checkout --orphan clean-branch
+git add &lt;fichiers sources uniquement&gt;
+git commit -m "first commit"
+git branch -D main
+git branch -m main
+git push --force origin main</code></pre>
+
+<h3>P6 — Erreur Alembic sur DB vierge</h3>
+<div class="alert alert-err">
+  <strong>Erreur :</strong> <code>relation "programs" does not exist</code>
+</div>
+<p><strong>Cause :</strong> La migration 001 essaie d'ALTER TABLE sur des tables inexistantes.<br>
+<strong>Solution :</strong> Lancer <code>Base.metadata.create_all()</code> avant <code>alembic stamp head</code> (voir section 10).</p>
+
+<h3>P7 — TypeScript build error (Set iteration)</h3>
+<div class="alert alert-err">
+  <strong>Erreur :</strong> <code>Type 'Set&lt;string&gt;' can only be iterated with --downlevelIteration</code>
+</div>
+<p><strong>Solution :</strong> Remplacer <code>[...new Set(...)]</code> par <code>Array.from(new Set(...))</code></p>
+
+<h3>P8 — Mauvais nom de variable dans Coolify</h3>
+<div class="alert alert-err">
+  <strong>Symptôme :</strong> Backend ne trouve pas la DB malgré la variable configurée.
+</div>
+<p><strong>Cause :</strong> La variable était nommée <code>masap-db</code> au lieu de <code>DATABASE_URL</code>.<br>
+<strong>Solution :</strong> Corriger le nom dans la vue "Developer" des env vars Coolify.</p>
+
+<!-- ===== 12. URLS ===== -->
+<h2>12. URLs de production</h2>
+<table>
+  <tr><th>Service</th><th>URL</th></tr>
+  <tr><td>Frontend (app)</td><td><code>http://zw00l6d0b136lbmpb5q7dpb6.77.237.247.61.sslip.io</code></td></tr>
+  <tr><td>Backend API</td><td><code>http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io</code></td></tr>
+  <tr><td>Swagger Docs</td><td><code>http://piqaiu91ter4h0m8njg1jff6.77.237.247.61.sslip.io/docs</code></td></tr>
+  <tr><td>Coolify Dashboard</td><td><code>http://77.237.247.61:8000</code></td></tr>
+  <tr><td>VPS SSH</td><td><code>ssh root@77.237.247.61</code></td></tr>
+</table>
+
+<!-- ===== 13. COMPTES ===== -->
+<h2>13. Comptes par défaut (seed)</h2>
+<div class="alert alert-warn">
+  <strong>Sécurité :</strong> Changer ces mots de passe dès la mise en production réelle.
+</div>
+<table>
+  <tr><th>Rôle</th><th>Email</th><th>Mot de passe</th></tr>
+  <tr><td>Administrateur</td><td><code>admin@uganc.edu.gn</code></td><td><code>Admin@2024!</code></td></tr>
+  <tr><td>Chef de département</td><td><code>chef.dept@uganc.edu.gn</code></td><td><code>Chef@2024!</code></td></tr>
+  <tr><td>Enseignant</td><td><code>enseignant@uganc.edu.gn</code></td><td><code>Enseignant@2024!</code></td></tr>
+  <tr><td>Étudiant</td><td><code>etudiant@uganc.edu.gn</code></td><td><code>Etudiant@2024!</code></td></tr>
+</table>
+
+<!-- ===== 14. CHECKLIST ===== -->
+<h2>14. Checklist de déploiement</h2>
+<h3>Premier déploiement (DB vierge)</h3>
+<ul>
+  <li>☐ VPS accessible via SSH</li>
+  <li>☐ Coolify installé et accessible</li>
+  <li>☐ IPv6 désactivé dans Docker daemon (<code>/etc/docker/daemon.json</code>)</li>
+  <li>☐ GitHub connecté à Coolify</li>
+  <li>☐ Ressource PostgreSQL 16 créée et démarrée</li>
+  <li>☐ URL interne PostgreSQL copiée</li>
+  <li>☐ Ressource Backend créée avec toutes les env vars</li>
+  <li>☐ <code>ALLOWED_ORIGINS</code> contient l'URL sslip.io du frontend</li>
+  <li>☐ Backend déployé et seed exécuté (vérifier les logs)</li>
+  <li>☐ <code>NEXT_PUBLIC_API_URL</code> hardcodé dans <code>frontend/Dockerfile</code></li>
+  <li>☐ <code>COPY --from=builder /app/public ./public</code> présent dans <code>frontend/Dockerfile</code></li>
+  <li>☐ Ressource Frontend créée et déployée</li>
+  <li>☐ Login fonctionnel sur l'URL frontend</li>
+  <li>☐ Logo affiché sur la page de connexion et dans la sidebar</li>
+</ul>
+
+<h3>Mise à jour (redéploiement)</h3>
+<ul>
+  <li>☐ <code>git push origin main</code></li>
+  <li>☐ Coolify auto-déploie (ou déclencher manuellement)</li>
+  <li>☐ Vérifier les logs de build</li>
+  <li>☐ Tester l'authentification</li>
+  <li>☐ Si nouvelles migrations Alembic : mettre à jour le CMD du backend Dockerfile</li>
+</ul>
+
+<hr>
+<p style="text-align:center; color:#94a3b8; font-size:12px; margin-top:32px;">
+  MASAP-UGANC · Documentation générée en Mars 2026 · FSTS — Université Gamal Abdel Nasser de Conakry
+</p>
+
+</body>
+</html>
