@@ -29,5 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Frontend Build
+        env:
+          WEBHOOK_URL: ${{ secrets.FRONTEND_WEBHOOK_URL }}
         run: |
-          curl -X POST "${{ secrets.FRONTEND_WEBHOOK_URL }}"
+          curl -X POST "${WEBHOOK_URL}"
