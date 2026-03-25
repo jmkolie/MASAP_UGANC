@@ -1,0 +1,42 @@
+name: Deploy to CapRover
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CapRover CLI
+        run: npm install -g caprover
+
+      - name: Deploy Backend
+        run: |
+          cd backend
+          tar -czf /tmp/backend.tar.gz .
+          caprover deploy \
+            --caproverUrl ${{ secrets.CAPROVER_URL }} \
+            --appToken ${{ secrets.BACKEND_APP_TOKEN }} \
+            --appName masap-backend \
+            --tarFile /tmp/backend.tar.gz
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CapRover CLI
+        run: npm install -g caprover
+
+      - name: Deploy Frontend
+        run: |
+          cd frontend
+          tar -czf /tmp/frontend.tar.gz .
+          caprover deploy \
+            --caproverUrl ${{ secrets.CAPROVER_URL }} \
+            --appToken ${{ secrets.FRONTEND_APP_TOKEN }} \
+            --appName masap-frontend \
+            --tarFile /tmp/frontend.tar.gz
