@@ -91,9 +91,9 @@ export function Sidebar({ role, userName, collapsed = false }: SidebarProps) {
       <div className="flex items-center gap-3 px-4 py-4 border-b border-primary-800">
         <div className="flex-shrink-0">
           <img
-            src="/logo.png"
-            alt="FSTS-UGANC"
-            className={collapsed ? 'w-9 h-9 object-contain' : 'w-12 h-12 object-contain'}
+            src="https://uganc.edu.gn/wp-content/uploads/2022/11/LOGO-UGANC-SITE-WEB.png"
+            alt="UGANC"
+            className={collapsed ? 'w-9 h-auto object-contain' : 'w-12 h-auto object-contain'}
           />
         </div>
         {!collapsed && (
