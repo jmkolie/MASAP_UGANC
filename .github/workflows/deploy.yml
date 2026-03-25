@@ -19,7 +19,7 @@ jobs:
           tar -czf /tmp/backend.tar.gz .
           caprover deploy \
             --caproverUrl ${{ secrets.CAPROVER_URL }} \
-            --appToken ${{ secrets.BACKEND_APP_TOKEN }} \
+            --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} \
             --appName masap-backend \
             --tarFile /tmp/backend.tar.gz
 
@@ -37,6 +37,6 @@ jobs:
           tar -czf /tmp/frontend.tar.gz .
           caprover deploy \
             --caproverUrl ${{ secrets.CAPROVER_URL }} \
-            --appToken ${{ secrets.FRONTEND_APP_TOKEN }} \
+            --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} \
             --appName masap-frontend \
             --tarFile /tmp/frontend.tar.gz
