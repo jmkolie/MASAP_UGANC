@@ -10,33 +10,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CapRover CLI
-        run: npm install -g caprover
-
       - name: Deploy Backend
         run: |
           cd backend
           tar -czf /tmp/backend.tar.gz .
-          caprover deploy \
-            --caproverUrl ${{ secrets.CAPROVER_URL }} \
-            --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} \
-            --appName masap-backend \
-            --tarFile /tmp/backend.tar.gz
+
+          TOKEN=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"password\":\"${{ secrets.CAPROVER_PASSWORD }}\"}" \
+            "${{ secrets.CAPROVER_URL }}/api/v2/login" | jq -r '.data.token')
+
+          curl -X POST \
+            -H "x-captain-auth-token: $TOKEN" \
+            -F "sourceFile=@/tmp/backend.tar.gz" \
+            "${{ secrets.CAPROVER_URL }}/api/v2/user/apps/appData/masap-backend?detached=1"
 
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CapRover CLI
-        run: npm install -g caprover
-
       - name: Deploy Frontend
         run: |
           cd frontend
           tar -czf /tmp/frontend.tar.gz .
-          caprover deploy \
-            --caproverUrl ${{ secrets.CAPROVER_URL }} \
-            --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} \
-            --appName masap-frontend \
-            --tarFile /tmp/frontend.tar.gz
+
+          TOKEN=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"password\":\"${{ secrets.CAPROVER_PASSWORD }}\"}" \
+            "${{ secrets.CAPROVER_URL }}/api/v2/login" | jq -r '.data.token')
+
+          curl -X POST \
+            -H "x-captain-auth-token: $TOKEN" \
+            -F "sourceFile=@/tmp/frontend.tar.gz" \
+            "${{ secrets.CAPROVER_URL }}/api/v2/user/apps/appData/masap-frontend?detached=1"
