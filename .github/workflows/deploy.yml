@@ -28,19 +28,6 @@ jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy Frontend
+      - name: Trigger Frontend Build
         run: |
-          cd frontend
-          tar -czf /tmp/frontend.tar.gz .
-
-          TOKEN=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d "{\"password\":\"${{ secrets.CAPROVER_PASSWORD }}\"}" \
-            "${{ secrets.CAPROVER_URL }}/api/v2/login" | jq -r '.data.token')
-
-          curl -X POST \
-            -H "x-captain-auth-token: $TOKEN" \
-            -F "sourceFile=@/tmp/frontend.tar.gz" \
-            "${{ secrets.CAPROVER_URL }}/api/v2/user/apps/appData/masap-frontend?detached=1"
+          curl -X POST "${{ secrets.FRONTEND_WEBHOOK_URL }}"
