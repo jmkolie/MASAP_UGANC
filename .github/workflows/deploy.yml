@@ -32,4 +32,5 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.FRONTEND_WEBHOOK_URL }}
         run: |
-          curl -X POST "${WEBHOOK_URL}"
+          CLEAN_URL=$(echo "${WEBHOOK_URL}" | tr -d '[:space:]')
+          curl -X POST "${CLEAN_URL}"
