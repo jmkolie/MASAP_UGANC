@@ -23,3 +23,8 @@
 - **Décision :** hébergement sur VPS avec Coolify comme plateforme de déploiement
 - **Pourquoi :** déploiement continu simplifié, Coolify détecte les push Git et rebuild automatiquement
 - **Comment déployer :** push sur la branche connectée à Coolify → rebuild automatique du frontend
+
+**2026-03-30 — Déploiement VPS via Git + Docker Compose**
+- **Décision :** déploiement depuis le dépôt GitHub sur le VPS avec `docker compose -f docker-compose.prod.yml up -d --build`
+- **Pourquoi :** le projet dispose déjà d'une stack Docker complète, et cette approche évite la dépendance à Coolify/CapRover pour la mise en production
+- **Alternatives rejetées :** Coolify/CapRover (configuration présente mais non retenue pour ce déploiement)
