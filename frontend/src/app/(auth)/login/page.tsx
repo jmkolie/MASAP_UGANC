@@ -9,6 +9,7 @@ import { Eye, EyeOff, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { login, getDashboardPath } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
+import { APP_NAME, UGANC_FULL_NAME, UGANC_FACULTY, UGANC_LOGO_PATH } from '@/lib/branding'
 
 const schema = z.object({
   email: z.string().email('Email invalide'),
@@ -52,11 +53,11 @@ export default function LoginPage() {
         {/* Header */}
         <div className="bg-primary-900 px-8 py-8 text-center">
           <div className="flex items-center justify-center mx-auto mb-4">
-            <img src="/logo.png" alt="FSTS-UGANC" className="w-24 h-24 object-contain" />
+            <img src={UGANC_LOGO_PATH} alt={APP_NAME} className="w-32 h-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">MASAP-UGANC</h1>
+          <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
           <p className="text-blue-200 text-sm mt-1">Portail Étudiant Universitaire</p>
-          <p className="text-blue-300 text-xs mt-0.5">FSTS — Université Gamal Abdel Nasser de Conakry</p>
+          <p className="text-blue-300 text-xs mt-0.5">{UGANC_FACULTY} — {UGANC_FULL_NAME}</p>
         </div>
 
         {/* Form */}
@@ -131,7 +132,7 @@ export default function LoginPage() {
       </div>
 
       <p className="text-center text-blue-200 text-xs mt-6">
-        © 2024 MASAP-UGANC — Tous droits réservés
+        © 2024 {APP_NAME} — Tous droits réservés
       </p>
     </div>
   )

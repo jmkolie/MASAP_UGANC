@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import api from '@/lib/api'
+import { APP_NAME, UGANC_FULL_NAME, UGANC_FACULTY, UGANC_LOGO_PATH } from '@/lib/branding'
 
 const schema = z.object({
   first_name: z.string().min(2, 'Prénom requis'),
@@ -58,11 +59,11 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="bg-primary-900 px-8 py-8 text-center">
           <div className="flex items-center justify-center mx-auto mb-4">
-            <img src="/logo.png" alt="FSTS-UGANC" className="w-20 h-20 object-contain" />
+            <img src={UGANC_LOGO_PATH} alt={APP_NAME} className="w-28 h-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">MASAP-UGANC</h1>
+          <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
           <p className="text-blue-200 text-sm mt-1">Créer un compte étudiant</p>
-          <p className="text-blue-300 text-xs mt-0.5">FSTS — Université Gamal Abdel Nasser de Conakry</p>
+          <p className="text-blue-300 text-xs mt-0.5">{UGANC_FACULTY} — {UGANC_FULL_NAME}</p>
         </div>
 
         {/* Form */}
@@ -152,7 +153,7 @@ export default function RegisterPage() {
       </div>
 
       <p className="text-center text-blue-200 text-xs mt-6">
-        © 2024 MASAP-UGANC — Tous droits réservés
+        © 2024 {APP_NAME} — Tous droits réservés
       </p>
     </div>
   )

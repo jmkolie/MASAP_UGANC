@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Role } from '@/types'
+import { APP_NAME, UGANC_FACULTY, UGANC_LOGO_PATH } from '@/lib/branding'
 
 interface NavItem {
   label: string
@@ -91,15 +92,15 @@ export function Sidebar({ role, userName, collapsed = false }: SidebarProps) {
       <div className="flex items-center gap-3 px-4 py-4 border-b border-primary-800">
         <div className="flex-shrink-0">
           <img
-            src="https://uganc.edu.gn/wp-content/uploads/2022/11/LOGO-UGANC-SITE-WEB.png"
-            alt="UGANC"
+            src={UGANC_LOGO_PATH}
+            alt={APP_NAME}
             className={collapsed ? 'w-9 h-auto object-contain' : 'w-12 h-auto object-contain'}
           />
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <p className="text-sm font-bold text-white leading-tight">MASAP-UGANC</p>
-            <p className="text-xs text-blue-300 leading-tight">FSTS-UGANC</p>
+            <p className="text-sm font-bold text-white leading-tight">{APP_NAME}</p>
+            <p className="text-xs text-blue-300 leading-tight">{UGANC_FACULTY}</p>
           </div>
         )}
       </div>

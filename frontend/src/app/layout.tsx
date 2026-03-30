@@ -3,13 +3,14 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { APP_NAME, UGANC_FULL_NAME, UGANC_LOGO_PATH } from '@/lib/branding'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'MASAP-UGANC | Portail Étudiant',
-  description: "Portail étudiant de l'Université — Master en Santé Publique",
-  icons: { icon: '/favicon.ico' },
+  title: `${APP_NAME} | Portail Étudiant`,
+  description: `${UGANC_FULL_NAME} — Master en Santé Publique`,
+  icons: { icon: UGANC_LOGO_PATH },
 }
 
 export default function RootLayout({

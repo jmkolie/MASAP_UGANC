@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import api from '@/lib/api'
+import { APP_NAME, UGANC_LOGO_PATH } from '@/lib/branding'
 
 const schema = z.object({
   new_password: z.string().min(8, 'Au moins 8 caractères'),
@@ -151,9 +152,9 @@ export default function ResetPasswordPage() {
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div className="bg-primary-900 px-8 py-8 text-center">
           <div className="flex items-center justify-center mx-auto mb-4">
-            <img src="/logo.png" alt="FSTS-UGANC" className="w-20 h-20 object-contain" />
+            <img src={UGANC_LOGO_PATH} alt={APP_NAME} className="w-28 h-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">MASAP-UGANC</h1>
+          <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
           <p className="text-blue-200 text-sm mt-1">Nouveau mot de passe</p>
         </div>
 
@@ -169,7 +170,7 @@ export default function ResetPasswordPage() {
       </div>
 
       <p className="text-center text-blue-200 text-xs mt-6">
-        © 2024 MASAP-UGANC — Tous droits réservés
+        © 2024 {APP_NAME} — Tous droits réservés
       </p>
     </div>
   )

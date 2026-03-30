@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { GraduationCap, BookOpen, Users, Award, ChevronRight, Mail, MapPin, Phone, TrendingUp } from 'lucide-react'
-
-const UGANC_LOGO = 'https://uganc.edu.gn/wp-content/uploads/2022/11/LOGO-UGANC-SITE-WEB.png'
+import { APP_NAME, UGANC_FACULTY, UGANC_FULL_NAME, UGANC_LOGO_PATH } from '@/lib/branding'
 
 export default function LandingPage() {
   return (
@@ -10,7 +9,7 @@ export default function LandingPage() {
       {/* Bande supérieure */}
       <div className="bg-[#3d0f1c] text-white text-xs py-1.5 px-4 hidden sm:block">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <span>Université Gamal Abdel Nasser de Conakry — FSTS</span>
+          <span>{UGANC_FULL_NAME} — FSTS</span>
           <a href="https://uganc.edu.gn" target="_blank" rel="noopener noreferrer" className="hover:text-[#de5634] transition-colors">
             uganc.edu.gn
           </a>
@@ -22,12 +21,12 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img
-              src={UGANC_LOGO}
-              alt="UGANC"
+              src={UGANC_LOGO_PATH}
+              alt={APP_NAME}
               className="h-12 w-auto object-contain"
             />
             <div className="border-l border-white/20 pl-4">
-              <p className="text-white font-bold text-sm leading-tight">MASAP-UGANC</p>
+              <p className="text-white font-bold text-sm leading-tight">{APP_NAME}</p>
               <p className="text-red-200 text-xs leading-tight">Master en Santé Publique</p>
             </div>
           </div>
@@ -89,9 +88,9 @@ export default function LandingPage() {
             <div className="flex-shrink-0">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                 <img
-                  src={UGANC_LOGO}
-                  alt="UGANC"
-                  className="w-48 h-auto object-contain"
+                  src={UGANC_LOGO_PATH}
+                  alt={APP_NAME}
+                  className="w-[28rem] max-w-full h-auto object-contain"
                 />
               </div>
             </div>
@@ -267,11 +266,11 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/10">
             <div className="flex items-center gap-4">
-              <img src={UGANC_LOGO} alt="UGANC" className="h-12 w-auto object-contain opacity-80" />
+              <img src={UGANC_LOGO_PATH} alt={APP_NAME} className="h-14 w-auto object-contain" />
               <div>
-                <p className="text-white font-bold text-sm">MASAP-UGANC</p>
-                <p className="text-red-300 text-xs">Faculté des Sciences et Techniques de la Santé</p>
-                <p className="text-red-300 text-xs">Université Gamal Abdel Nasser de Conakry</p>
+                <p className="text-white font-bold text-sm">{APP_NAME}</p>
+                <p className="text-red-300 text-xs">{UGANC_FACULTY}</p>
+                <p className="text-red-300 text-xs">{UGANC_FULL_NAME}</p>
               </div>
             </div>
             <div className="flex items-center gap-6 text-sm">
@@ -282,7 +281,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-red-300">
-            <span>© 2025 MASAP-UGANC — Tous droits réservés</span>
+            <span>© 2025 {APP_NAME} — Tous droits réservés</span>
             <a href="https://uganc.edu.gn" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               uganc.edu.gn
             </a>
