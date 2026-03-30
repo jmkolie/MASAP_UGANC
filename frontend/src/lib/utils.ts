@@ -51,13 +51,13 @@ export function getMention(grade: number | null | undefined): string {
 
 export function getRoleBadgeColor(role: Role): string {
   const colors: Record<Role, string> = {
-    super_admin: 'bg-purple-100 text-purple-800 border-purple-200',
-    dept_head: 'bg-blue-100 text-blue-800 border-blue-200',
+    super_admin: 'bg-primary-100 text-primary-800 border-primary-200',
+    dept_head: 'bg-[#e6f0fb] text-[#0e66c2] border-[#b6d4f5]',
     teacher: 'bg-green-100 text-green-800 border-green-200',
     student: 'bg-amber-100 text-amber-800 border-amber-200',
-    scolarite: 'bg-gray-100 text-gray-800 border-gray-200',
+    scolarite: 'bg-[#f3ece7] text-primary-800 border-[#e7d6cc]',
   }
-  return colors[role] || 'bg-gray-100 text-gray-800'
+  return colors[role] || 'bg-primary-50 text-primary-800 border-primary-100'
 }
 
 export function getRoleLabel(role: Role): string {

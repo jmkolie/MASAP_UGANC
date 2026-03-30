@@ -28,9 +28,9 @@ const colorMap = {
     border: 'border-amber-100',
   },
   purple: {
-    bg: 'bg-purple-50',
-    icon: 'bg-purple-100 text-purple-700',
-    border: 'border-purple-100',
+    bg: 'bg-primary-50',
+    icon: 'bg-primary-100 text-primary-700',
+    border: 'border-primary-100',
   },
   red: {
     bg: 'bg-red-50',
@@ -52,7 +52,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border p-5 shadow-card hover:shadow-card-hover transition-shadow',
+        'bg-white/95 rounded-xl border p-5 shadow-card hover:shadow-card-hover transition-shadow',
         colors.border,
         className
       )}
