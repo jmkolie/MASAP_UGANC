@@ -6,6 +6,8 @@ import { logout } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
 import { getRoleLabel, getRoleBadgeColor } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
+import { NotificationBell } from '@/components/ui/NotificationBell'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 interface TopbarProps {
   onToggleSidebar?: () => void
@@ -38,12 +40,12 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-primary-700 hover:bg-primary-50 transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+        <NotificationBell />
 
         {/* User dropdown */}
         <div className="relative">
