@@ -1,11 +1,13 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, User, LogOut, Settings, Menu, ChevronDown } from 'lucide-react'
+import { User, LogOut, Settings, Menu, ChevronDown } from 'lucide-react'
 import { logout } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
 import { getRoleLabel, getRoleBadgeColor } from '@/lib/utils'
-import { Badge } from '@/components/ui/Badge'
+import { NotificationBell } from '@/components/ui/NotificationBell'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Avatar } from '@/components/ui/Avatar'
 
 interface TopbarProps {
   onToggleSidebar?: () => void
@@ -38,12 +40,9 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
-        {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-primary-700 hover:bg-primary-50 transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <NotificationBell />
 
         {/* User dropdown */}
         <div className="relative">
@@ -51,17 +50,11 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary-50 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-white text-sm font-bold overflow-hidden">
-              {avatarSrc ? (
-                <img src={avatarSrc} alt={fullName} className="w-full h-full object-cover" />
-              ) : initials}
-            </div>
+            <Avatar src={avatarSrc} alt={fullName} initials={initials} />
             <div className="hidden md:block text-left">
               <p className="text-sm font-medium text-primary-900 leading-tight">{fullName}</p>
               {user && (
-                <span
-                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium border ${getRoleBadgeColor(user.role)}`}
-                >
+                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium border ${getRoleBadgeColor(user.role)}`}>
                   {getRoleLabel(user.role)}
                 </span>
               )}

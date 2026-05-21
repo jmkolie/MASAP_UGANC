@@ -1,10 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { BookMarked, Star, Download, Bell, TrendingUp } from 'lucide-react'
+import { BookMarked, Star, Download, Bell, TrendingUp, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/StatCard'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { GradeChart, ModulePerformance, ProgressChart } from '@/components/ui/GradeChart'
 import { useAuth } from '@/contexts/AuthContext'
 import { getGradeColor, getMention, formatDate } from '@/lib/utils'
 import api from '@/lib/api'
@@ -17,6 +18,7 @@ interface ModuleResult {
   average?: number
   is_passed?: boolean
   credits_earned: number
+  coefficient?: number
 }
 
 export default function StudentDashboard() {
@@ -47,6 +49,7 @@ export default function StudentDashboard() {
             average: m.average,
             is_passed: m.is_passed,
             credits_earned: m.credits_earned,
+            coefficient: m.coefficient || 1,
           })))
         }
       } catch {
@@ -65,12 +68,18 @@ export default function StudentDashboard() {
     ? validatedResults.reduce((sum, r) => sum + (r.average || 0), 0) / validatedResults.length
     : null
   const creditsEarned = results.reduce((sum, r) => sum + r.credits_earned, 0)
+  const totalCredits = modules.reduce((sum, module) => sum + module.credits, 0) || 120
+  const chartData = validatedResults.slice(0, 8).map((result) => ({
+    name: result.module_code || result.module_name.slice(0, 12),
+    value: result.average || 0,
+  }))
+  const passedCount = validatedResults.filter((result) => result.is_passed).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Welcome */}
-      <div className="bg-gradient-to-r from-primary-700 to-primary-900 rounded-xl p-6 text-white">
-        <h1 className="text-2xl font-bold">Bonjour, {user?.first_name} ! 👋</h1>
+      <div className="bg-gradient-to-r from-primary-700 to-primary-900 rounded-xl p-6 text-white shadow-lg">
+        <h1 className="text-2xl font-bold animate-slide-in-up">Bonjour, {user?.first_name} !</h1>
         <p className="text-blue-200 mt-1 text-sm">
           {user?.student_profile?.student_id && (
             <span className="mr-3">Matricule : <strong>{user.student_profile.student_id}</strong></span>
@@ -78,7 +87,7 @@ export default function StudentDashboard() {
           Master en Santé Publique
         </p>
         {overallAvg !== null && (
-          <div className="mt-4 flex items-center gap-6">
+          <div className="mt-4 flex items-center gap-6 flex-wrap">
             <div>
               <p className="text-blue-200 text-xs">Moyenne générale</p>
               <p className="text-3xl font-bold">{overallAvg.toFixed(2)}<span className="text-lg text-blue-200">/20</span></p>
@@ -88,6 +97,9 @@ export default function StudentDashboard() {
               <p className="text-blue-200 text-xs">Crédits obtenus</p>
               <p className="text-3xl font-bold">{creditsEarned}</p>
               <p className="text-blue-200 text-xs">ECTS</p>
+            </div>
+            <div className="ml-auto">
+              <ProgressChart completed={creditsEarned} total={totalCredits} size="sm" />
             </div>
           </div>
         )}
@@ -100,6 +112,34 @@ export default function StudentDashboard() {
         <StatCard title="Crédits obtenus" value={creditsEarned} icon={TrendingUp} color="amber" />
         <StatCard title="Annonces" value={announcements.length} icon={Bell} color="purple" />
       </div>
+
+      {validatedResults.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <GradeChart data={chartData} title="Performance par module" className="animate-scale-in" />
+          <div className="rounded-xl border border-primary-100 bg-white p-5 shadow-card animate-scale-in">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-semibold text-gray-800">Taux de réussite</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {passedCount} module(s) validé(s) sur {validatedResults.length}
+                </p>
+              </div>
+              <ProgressChart completed={passedCount} total={validatedResults.length} />
+            </div>
+
+            <div className="mt-5">
+              <ModulePerformance
+                modules={validatedResults.slice(0, 4).map((result) => ({
+                  name: result.module_name,
+                  average: result.average || 0,
+                  credits: result.credits_earned,
+                  coefficient: result.coefficient || 1,
+                }))}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent grades */}
@@ -176,7 +216,7 @@ export default function StudentDashboard() {
             { label: 'Mes notes', href: '/student/mes-notes', icon: Star, color: 'bg-blue-50 text-blue-700' },
             { label: 'Mes relevés', href: '/student/mes-releves', icon: Download, color: 'bg-green-50 text-green-700' },
             { label: 'Documents', href: '/student/documents', icon: BookMarked, color: 'bg-amber-50 text-amber-700' },
-            { label: 'Emploi du temps', href: '/student/emploi-du-temps', icon: Bell, color: 'bg-purple-50 text-purple-700' },
+            { label: 'Emploi du temps', href: '/student/emploi-du-temps', icon: Clock, color: 'bg-purple-50 text-purple-700' },
           ].map(({ label, href, icon: Icon, color }) => (
             <Link
               key={href}

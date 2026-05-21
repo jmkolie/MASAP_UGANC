@@ -28,3 +28,8 @@
 - **Décision :** déploiement depuis le dépôt GitHub sur le VPS avec `docker compose -f docker-compose.prod.yml up -d --build`
 - **Pourquoi :** le projet dispose déjà d'une stack Docker complète, et cette approche évite la dépendance à Coolify/CapRover pour la mise en production
 - **Alternatives rejetées :** Coolify/CapRover (configuration présente mais non retenue pour ce déploiement)
+
+**2026-05-21 — Intégration sélective du patch Qwen**
+- **Décision :** intégrer les fonctionnalités frontend Qwen uniquement après adaptation aux endpoints et dépendances réels du projet, avec ajout propre du thème sombre, des notifications, des charts et d'une bibliothèque UI locale
+- **Pourquoi :** le patch brut contenait des suppressions dangereuses et des hypothèses invalides sur l'API; l'intégration sélective permet de conserver la stabilité du build et du déploiement
+- **Alternatives rejetées :** reprise intégrale du patch Qwen (risque de régression), abandon complet du patch (perte de valeur fonctionnelle)

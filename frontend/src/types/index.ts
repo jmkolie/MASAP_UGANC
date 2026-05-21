@@ -210,6 +210,20 @@ export interface Message {
   created_at: string
 }
 
+export type NotificationType = 'info' | 'success' | 'warning' | 'error'
+
+export interface Notification {
+  id: number
+  user_id: number
+  title: string
+  content?: string
+  type: NotificationType
+  is_read: boolean
+  read_at?: string
+  link?: string
+  created_at: string
+}
+
 export interface DashboardStats {
   total_students: number
   total_teachers: number

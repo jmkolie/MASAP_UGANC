@@ -1,21 +1,19 @@
 'use client'
-import { useState, useRef } from 'react'
-import { User, Mail, Phone, MapPin, Calendar, Award, Camera } from 'lucide-react'
+import { useState } from 'react'
+import { User, Mail, Phone, MapPin, Calendar, Award } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { formatDate, getEnrollmentStatusLabel, getEnrollmentStatusColor } from '@/lib/utils'
 import api from '@/lib/api'
-import { Avatar } from '@/components/ui/Avatar'
+import { ProfilePictureUploader } from '@/components/ui/ProfilePictureUploader'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function MonProfilPage() {
   const { user, refetch } = useAuth()
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const avatarInputRef = useRef<HTMLInputElement>(null)
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleAvatarChange = async (file: File) => {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
@@ -39,7 +37,6 @@ export default function MonProfilPage() {
       toast.error(err?.response?.data?.detail || 'Erreur lors de l\'upload')
     } finally {
       setUploadingAvatar(false)
-      if (avatarInputRef.current) avatarInputRef.current.value = ''
     }
   }
 
@@ -64,29 +61,13 @@ export default function MonProfilPage() {
         {/* Avatar & name */}
         <div className="px-6 pb-5">
           <div className="-mt-10 flex items-end gap-4 mb-4">
-            <div className="relative flex-shrink-0 group">
-              <Avatar
-                src={avatarSrc}
-                alt={`${user.first_name} ${user.last_name}`}
-                initials={initials}
-                size="xl"
-                className="border-4 border-white shadow-md rounded-2xl"
-              />
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/55 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-70"
-                title="Changer la photo"
-              >
-                {uploadingAvatar ? (
-                  <div className="w-7 h-7 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                ) : (
-                  <Camera className="w-6 h-6 text-white" />
-                )}
-              </button>
-              <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-            </div>
+            <ProfilePictureUploader
+              currentImage={avatarSrc}
+              initials={initials}
+              alt={`${user.first_name} ${user.last_name}`}
+              uploading={uploadingAvatar}
+              onFileSelect={handleAvatarChange}
+            />
             <div className="pb-1">
               <h2 className="text-xl font-bold text-gray-900">
                 {user.first_name} {user.last_name}

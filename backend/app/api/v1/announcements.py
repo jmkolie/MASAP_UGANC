@@ -258,3 +258,24 @@ async def mark_notification_read(
     notif.read_at = datetime.utcnow()
     db.commit()
     return {"message": "Notification marquée comme lue"}
+
+
+@router.put("/notifications/read-all")
+async def mark_all_notifications_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    notifications = (
+        db.query(Notification)
+        .filter(
+            Notification.user_id == current_user.id,
+            Notification.is_read == False,
+        )
+        .all()
+    )
+    now = datetime.utcnow()
+    for notification in notifications:
+        notification.is_read = True
+        notification.read_at = now
+    db.commit()
+    return {"message": "Notifications marquées comme lues", "count": len(notifications)}
