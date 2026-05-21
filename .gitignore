@@ -1,4 +1,4 @@
-```
+```gitignore
 # Dependencies
 node_modules/
 
@@ -6,32 +6,35 @@ node_modules/
 dist/
 build/
 .next/
-.nuxt/
 out/
 
-# TypeScript/JavaScript
-*.tsbuildinfo
-*.js.map
-*.ts.map
-
-# Logs
-*.log
-
 # Environment variables
-.env*
-!.env.example
+.env
+.env.local
+*.env.*
 
-# IDE files
+# Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# OS files
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# OS generated files
 .DS_Store
 Thumbs.db
-
-# Coverage
-coverage/
-.nyc_output/
 ```
