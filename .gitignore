@@ -1,48 +1,60 @@
-# Claude
-.claude/
-
-# OS
-.DS_Store
-**/.DS_Store
-
-# Env files - NEVER commit secrets
-.env
-**/.env
-.env.local
-.env.production
+```
+# Dependencies
+.backend/
+.frontend/node_modules/
+backend/venv/
+backend/.venv/
+frontend/node_modules/
+node_modules/
 
 # Python
 __pycache__/
-**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-*.egg-info/
-dist/
-build/
-.venv/
+env/
 venv/
+.venv/
+.env
+.env.local
+.env.*
+.env.example
+.envrc
+.env.*
+*.env.*
 
-# Node
-node_modules/
-**/node_modules/
+# Build artifacts
+backend/dist/
+backend/build/
+frontend/dist/
+frontend/build/
+build/
+dist/
 
-# Next.js build output
-frontend/.next/
-frontend/out/
-
-# Uploads (données locales)
-backend/uploads/
-
-# Alembic compiled
-backend/alembic/versions/__pycache__/
-
-# Test cache
+# Testing
+.coverage
+htmlcov/
+.coverage.*
+.cache
 .pytest_cache/
-**/.pytest_cache/
 .mypy_cache/
-.ruff_cache/
 
 # Logs
 *.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Environment specific
+.env.local
+.env.*
+```
