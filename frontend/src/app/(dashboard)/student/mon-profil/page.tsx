@@ -1,10 +1,12 @@
 'use client'
 import { useState, useRef } from 'react'
-import { User, Mail, Phone, MapPin, Calendar, Award, Camera } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Calendar, Award, Camera, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { formatDate, getEnrollmentStatusLabel, getEnrollmentStatusColor } from '@/lib/utils'
 import api from '@/lib/api'
+import { Avatar } from '@/components/ui/Avatar'
+import { Button } from '@/components/ui/Button'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -16,13 +18,26 @@ export default function MonProfilPage() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Veuillez sélectionner une image valide')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('L\'image ne doit pas dépasser 5MB')
+      return
+    }
+
     setUploadingAvatar(true)
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('profile_picture', file)
       await api.post('/users/me/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       await refetch()
-      toast.success('Photo mise à jour')
+      toast.success('Photo mise à jour avec succès')
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || 'Erreur lors de l\'upload')
     } finally {
@@ -31,9 +46,26 @@ export default function MonProfilPage() {
     }
   }
 
+  const handleRemoveAvatar = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer votre photo de profil ?')) return
+
+    setUploadingAvatar(true)
+    try {
+      await api.delete('/users/me/avatar')
+      await refetch()
+      toast.success('Photo supprimée')
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Erreur lors de la suppression')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   if (!user) return null
 
   const profile = user.student_profile
+  const avatarSrc = user.profile_picture ? `${API_URL}${user.profile_picture}` : undefined
+  const initials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -50,24 +82,45 @@ export default function MonProfilPage() {
         {/* Avatar & name */}
         <div className="px-6 pb-5">
           <div className="-mt-10 flex items-end gap-4 mb-4">
-            <div className="relative flex-shrink-0">
-              <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-primary-700 overflow-hidden">
-                {user.profile_picture ? (
-                  <img src={`${API_URL}${user.profile_picture}`} alt="avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <>{user.first_name[0]}{user.last_name[0]}</>
-                )}
-              </div>
+            <div className="relative flex-shrink-0 group">
+              <Avatar src={avatarSrc} initials={initials} size="xl" className="ring-4 ring-white shadow-lg" />
+              
+              {/* Hover overlay for upload */}
               <button
                 type="button"
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+                className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer disabled:opacity-50"
                 title="Changer la photo"
               >
-                <Camera className="w-3.5 h-3.5 text-gray-600" />
+                {uploadingAvatar ? (
+                  <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white" />
+                )}
               </button>
-              <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+
+              {/* Remove button */}
+              {user.profile_picture && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={uploadingAvatar}
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md transition-colors disabled:opacity-50"
+                  title="Supprimer la photo"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+
+              <input 
+                ref={avatarInputRef} 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleAvatarChange} 
+                disabled={uploadingAvatar}
+              />
             </div>
             <div className="pb-1">
               <h2 className="text-xl font-bold text-gray-900">
