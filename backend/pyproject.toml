@@ -1,0 +1,47 @@
+# Ruff configuration for MASAP-UGANC backend
+
+[lint]
+# Enable pycodestyle (E), pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM", "ARG", "DTZ", "TCH", "PTH", "RUF"]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "E731",  # do not assign a lambda expression, use a def
+    "B008",  # do not perform function calls in argument defaults
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "alembic",
+    "*.pyi",
+]
+
+# Target Python 3.11
+target-version = "py311"
+
+[lint.per-file-ignores]
+# Ignore unused imports in __init__.py files
+"__init__.py" = ["F401"]
+# Ignore certain rules in tests
+"tests/*" = ["S101", "ARG", "DTZ"]
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+# Use 4 spaces for indentation
+indent-style = "space"
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+# Unix line endings
+line-ending = "auto"
+
+[lint.isort]
+known-first-party = ["app"]
+known-third-party = ["fastapi", "sqlalchemy", "pydantic", "alembic"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
