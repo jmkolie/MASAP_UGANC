@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { formatDate, getEnrollmentStatusLabel, getEnrollmentStatusColor } from '@/lib/utils'
 import api from '@/lib/api'
+import { Avatar } from '@/components/ui/Avatar'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -16,6 +17,17 @@ export default function MonProfilPage() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Veuillez sélectionner une image valide')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('L’image ne doit pas dépasser 5 Mo')
+      return
+    }
+
     setUploadingAvatar(true)
     try {
       const formData = new FormData()
@@ -34,6 +46,8 @@ export default function MonProfilPage() {
   if (!user) return null
 
   const profile = user.student_profile
+  const avatarSrc = user.profile_picture ? `${API_URL}${user.profile_picture}` : null
+  const initials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -50,22 +64,26 @@ export default function MonProfilPage() {
         {/* Avatar & name */}
         <div className="px-6 pb-5">
           <div className="-mt-10 flex items-end gap-4 mb-4">
-            <div className="relative flex-shrink-0">
-              <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-md flex items-center justify-center text-2xl font-bold text-primary-700 overflow-hidden">
-                {user.profile_picture ? (
-                  <img src={`${API_URL}${user.profile_picture}`} alt="avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <>{user.first_name[0]}{user.last_name[0]}</>
-                )}
-              </div>
+            <div className="relative flex-shrink-0 group">
+              <Avatar
+                src={avatarSrc}
+                alt={`${user.first_name} ${user.last_name}`}
+                initials={initials}
+                size="xl"
+                className="border-4 border-white shadow-md rounded-2xl"
+              />
               <button
                 type="button"
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/55 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-70"
                 title="Changer la photo"
               >
-                <Camera className="w-3.5 h-3.5 text-gray-600" />
+                {uploadingAvatar ? (
+                  <div className="w-7 h-7 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white" />
+                )}
               </button>
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
