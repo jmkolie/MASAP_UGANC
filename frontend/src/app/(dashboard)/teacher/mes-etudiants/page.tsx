@@ -17,6 +17,11 @@ interface StudentItem {
     student_id: string
     enrollment_status: string
     promotion_year?: number
+    program?: {
+      id: number
+      name: string
+      code: string
+    }
   }
 }
 
@@ -113,6 +118,7 @@ export default function MesEtudiantsPage() {
                     <th className="table-header">Étudiant</th>
                     <th className="table-header">Matricule</th>
                     <th className="table-header">Email</th>
+                    <th className="table-header">Programme</th>
                     <th className="table-header text-center">Statut</th>
                     <th className="table-header text-center">Promo</th>
                   </tr>
@@ -131,6 +137,14 @@ export default function MesEtudiantsPage() {
                       </td>
                       <td className="table-cell font-mono text-xs text-gray-500">{s.student_profile?.student_id || '—'}</td>
                       <td className="table-cell text-sm text-gray-500">{s.email}</td>
+                      <td className="table-cell text-sm text-gray-600">
+                        {s.student_profile?.program ? (
+                          <div>
+                            <div className="font-medium text-gray-800">{s.student_profile.program.name}</div>
+                            <div className="text-xs text-gray-400">{s.student_profile.program.code}</div>
+                          </div>
+                        ) : '—'}
+                      </td>
                       <td className="table-cell text-center">
                         {s.student_profile ? (
                           <span className={`badge ${getEnrollmentStatusColor(s.student_profile.enrollment_status)}`}>

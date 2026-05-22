@@ -2,7 +2,7 @@ import csv
 import io
 import os
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile, File, status
 from fastapi.responses import StreamingResponse, Response
@@ -82,9 +82,19 @@ async def create_user(
     return user
 
 
-@router.get("/me/profile", response_model=UserResponse)
-async def get_my_profile(current_user: User = Depends(get_current_user)):
-    return current_user
+@router.get("/me/profile", response_model=Union[StudentResponse, TeacherResponse, UserResponse])
+async def get_my_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    query = db.query(User).filter(User.id == current_user.id)
+
+    if current_user.role == RoleEnum.student:
+        query = query.options(joinedload(User.student_profile).joinedload(StudentProfile.program))
+    elif current_user.role == RoleEnum.teacher:
+        query = query.options(joinedload(User.teacher_profile))
+
+    return query.first() or current_user
 
 
 @router.post("/me/avatar", response_model=UserResponse)
@@ -125,7 +135,7 @@ async def list_students(
     query = (
         db.query(User)
         .join(StudentProfile, User.id == StudentProfile.user_id)
-        .options(joinedload(User.student_profile))
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .filter(User.role == RoleEnum.student)
     )
     if search:
@@ -191,7 +201,7 @@ async def get_student(
 ):
     user = (
         db.query(User)
-        .options(joinedload(User.student_profile))
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .filter(User.id == student_id, User.role == RoleEnum.student)
         .first()
     )
@@ -462,7 +472,7 @@ async def list_pending_students(
     """List students awaiting admin approval (is_active=False)."""
     query = (
         db.query(User)
-        .options(joinedload(User.student_profile))
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .filter(User.role == RoleEnum.student, User.is_active.is_(False))
         .order_by(User.created_at.desc())
     )
@@ -541,6 +551,13 @@ async def get_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+    if user.role == RoleEnum.student:
+        user = (
+            db.query(User)
+            .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
+            .filter(User.id == user_id)
+            .first()
+        )
     return user
 
 

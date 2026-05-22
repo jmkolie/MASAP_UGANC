@@ -64,6 +64,7 @@ export default function StudentDashboard() {
   if (loading) return <PageLoader />
 
   const validatedResults = results.filter((r) => r.average !== null && r.average !== undefined)
+  const programName = user?.student_profile?.program?.name || 'Programme non renseigné'
   const overallAvg = validatedResults.length > 0
     ? validatedResults.reduce((sum, r) => sum + (r.average || 0), 0) / validatedResults.length
     : null
@@ -84,7 +85,7 @@ export default function StudentDashboard() {
           {user?.student_profile?.student_id && (
             <span className="mr-3">Matricule : <strong>{user.student_profile.student_id}</strong></span>
           )}
-          Master en Santé Publique
+          {programName}
         </p>
         {overallAvg !== null && (
           <div className="mt-4 flex items-center gap-6 flex-wrap">

@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Union
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
-from app.models.user import User, RoleEnum
+from app.models.user import User, RoleEnum, StudentProfile, TeacherProfile
 from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token, create_reset_token
 from app.core.deps import get_current_user, log_action
 from app.config import settings
@@ -22,7 +23,7 @@ from app.schemas.auth import (
     PasswordResetRequest,
     PasswordResetConfirm,
 )
-from app.schemas.user import UserResponse, StudentRegisterRequest
+from app.schemas.user import UserResponse, StudentRegisterRequest, StudentResponse, TeacherResponse
 from app.core.security import get_password_hash
 
 router = APIRouter()
@@ -137,10 +138,20 @@ async def refresh_token(payload: RefreshTokenRequest, db: Session = Depends(get_
     )
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_me(current_user: User = Depends(get_current_user)):
+@router.get("/me", response_model=Union[StudentResponse, TeacherResponse, UserResponse])
+async def get_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Get current authenticated user's info."""
-    return current_user
+    query = db.query(User).filter(User.id == current_user.id)
+
+    if current_user.role == RoleEnum.student:
+        query = query.options(joinedload(User.student_profile).joinedload(StudentProfile.program))
+    elif current_user.role == RoleEnum.teacher:
+        query = query.options(joinedload(User.teacher_profile))
+
+    return query.first() or current_user
 
 
 @router.post("/logout")

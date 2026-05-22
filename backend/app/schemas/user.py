@@ -3,6 +3,7 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 from app.models.user import RoleEnum, EnrollmentStatus
+from app.models.academic import DegreeType
 
 
 class StudentRegisterRequest(BaseModel):
@@ -88,6 +89,16 @@ class StudentUpdate(UserUpdate):
     profile: Optional[StudentProfileBase] = None
 
 
+class StudentProgramSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    code: str
+    degree_type: DegreeType
+    level: Optional[int] = None
+
+
 class StudentProfileResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -102,6 +113,7 @@ class StudentProfileResponse(BaseModel):
     academic_year_id: Optional[int] = None
     promotion_year: Optional[int] = None
     specialty: Optional[str] = None
+    program: Optional[StudentProgramSummary] = None
 
 
 class StudentResponse(UserResponse):

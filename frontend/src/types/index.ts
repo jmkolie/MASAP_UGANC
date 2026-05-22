@@ -33,6 +33,10 @@ export interface StudentProfile {
   cohort_id?: number
   academic_year_id?: number
   promotion_year?: number
+  specialty?: string
+  program?: Pick<Program, 'id' | 'name' | 'code' | 'degree_type'> & {
+    level?: number
+  }
 }
 
 export interface TeacherProfile {

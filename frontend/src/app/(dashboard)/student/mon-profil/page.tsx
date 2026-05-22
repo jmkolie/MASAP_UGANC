@@ -101,6 +101,10 @@ export default function MonProfilPage() {
               />
               <InfoRow icon={User} label="Nationalité" value={profile.nationality || 'Non renseignée'} />
               <InfoRow icon={MapPin} label="Adresse" value={profile.address || 'Non renseignée'} />
+              <InfoRow icon={Award} label="Programme" value={profile.program?.name || 'Non renseigné'} />
+              {profile.specialty && (
+                <InfoRow icon={Award} label="Spécialité" value={profile.specialty} />
+              )}
               {profile.promotion_year && (
                 <InfoRow icon={Award} label="Année de promotion" value={String(profile.promotion_year)} />
               )}

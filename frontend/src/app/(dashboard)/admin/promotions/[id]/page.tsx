@@ -85,6 +85,7 @@ export default function CohortStudentsPage() {
                   <th className="table-header">Nom complet</th>
                   <th className="table-header">Email</th>
                   <th className="table-header">Téléphone</th>
+                  <th className="table-header">Programme</th>
                   <th className="table-header">Statut</th>
                 </tr>
               </thead>
@@ -112,6 +113,14 @@ export default function CohortStudentsPage() {
                     <td className="table-cell text-gray-500">
                       {s.phone ? (
                         <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" />{s.phone}</span>
+                      ) : '—'}
+                    </td>
+                    <td className="table-cell text-sm text-gray-600">
+                      {s.student_profile?.program ? (
+                        <div>
+                          <div className="font-medium text-gray-800">{s.student_profile.program.name}</div>
+                          <div className="text-xs text-gray-400">{s.student_profile.program.code}</div>
+                        </div>
                       ) : '—'}
                     </td>
                     <td className="table-cell">

@@ -229,7 +229,7 @@ async def get_program_students(
     students = (
         db.query(User)
         .join(StudentProfile, User.id == StudentProfile.user_id)
-        .options(joinedload(User.student_profile))
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .filter(StudentProfile.program_id == program_id)
         .order_by(User.last_name)
         .all()
@@ -391,6 +391,7 @@ async def get_cohort_students(
     students = (
         db.query(User)
         .join(StudentProfile, User.id == StudentProfile.user_id)
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .filter(StudentProfile.cohort_id == cohort_id)
         .all()
     )
@@ -589,6 +590,7 @@ async def get_module_students(
     students = (
         db.query(User)
         .join(StudentProfile, User.id == StudentProfile.user_id)
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
         .join(ModuleEnrollment, StudentProfile.id == ModuleEnrollment.student_id)
         .filter(ModuleEnrollment.module_id == module_id)
         .all()
@@ -598,6 +600,7 @@ async def get_module_students(
         students = (
             db.query(User)
             .join(StudentProfile, User.id == StudentProfile.user_id)
+            .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
             .filter(StudentProfile.program_id == module.program_id)
             .all()
         )
