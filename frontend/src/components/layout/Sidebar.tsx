@@ -20,6 +20,7 @@ interface NavItem {
 const adminNav: NavItem[] = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: Users },
+  { label: 'Étudiants', href: '/admin/etudiants', icon: GraduationCap },
   { label: 'Inscriptions en attente', href: '/admin/inscriptions', icon: UserCheck },
   { label: 'Facultés & Dépmt.', href: '/admin/departements', icon: Building },
   { label: 'Programmes', href: '/admin/programmes', icon: BookOpen },
