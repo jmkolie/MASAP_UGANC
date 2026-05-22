@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Download, GraduationCap, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/lib/api'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
+import { Pagination } from '@/components/ui/Pagination'
 import { getEnrollmentStatusColor, getEnrollmentStatusLabel } from '@/lib/utils'
 
 interface StudentItem {
@@ -30,15 +31,29 @@ interface StudentItem {
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<StudentItem[]>([])
+  const [page, setPage] = useState(1)
+  const [pages, setPages] = useState(1)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
   useEffect(() => {
     const fetchStudents = async () => {
+      setLoading(true)
       try {
-        const res = await api.get('/users/students/list?per_page=200')
+        const params: Record<string, string | number> = {
+          page,
+          per_page: 100,
+        }
+
+        if (search.trim()) params.search = search.trim()
+        if (statusFilter) params.status = statusFilter
+
+        const res = await api.get('/users/students/list', { params })
         setStudents(res.data?.items || [])
+        setPages(res.data?.pages || 1)
+        setTotal(res.data?.total || 0)
       } catch {
         toast.error('Erreur de chargement des étudiants')
       } finally {
@@ -47,35 +62,7 @@ export default function AdminStudentsPage() {
     }
 
     fetchStudents()
-  }, [])
-
-  const filteredStudents = useMemo(() => {
-    const query = search.trim().toLowerCase()
-
-    return students.filter((student) => {
-      const programText = [
-        student.student_profile?.program?.name,
-        student.student_profile?.program?.code,
-        student.student_profile?.specialty,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-
-      const matchesSearch =
-        !query ||
-        student.first_name.toLowerCase().includes(query) ||
-        student.last_name.toLowerCase().includes(query) ||
-        student.email.toLowerCase().includes(query) ||
-        student.student_profile?.student_id?.toLowerCase().includes(query) ||
-        programText.includes(query)
-
-      const matchesStatus =
-        !statusFilter || student.student_profile?.enrollment_status === statusFilter
-
-      return matchesSearch && matchesStatus
-    })
-  }, [search, statusFilter, students])
+  }, [page, search, statusFilter])
 
   const handleTranscript = async (student: StudentItem) => {
     try {
@@ -111,7 +98,10 @@ export default function AdminStudentsPage() {
             type="text"
             placeholder="Rechercher un étudiant ou un programme..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
             className="form-input pl-9"
           />
         </div>
@@ -119,7 +109,10 @@ export default function AdminStudentsPage() {
         <select
           className="form-input w-auto"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value)
+            setPage(1)
+          }}
         >
           <option value="">Tous les statuts</option>
           <option value="active">Actif</option>
@@ -132,7 +125,7 @@ export default function AdminStudentsPage() {
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-card">
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
           <span className="text-sm font-medium text-gray-700">
-            {filteredStudents.length} étudiant(s)
+            {total} étudiant(s)
           </span>
         </div>
 
@@ -151,14 +144,14 @@ export default function AdminStudentsPage() {
           </thead>
 
           <tbody className="divide-y divide-gray-50">
-            {filteredStudents.length === 0 ? (
+            {students.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-16 text-center text-sm text-gray-400">
                   Aucun étudiant trouvé
                 </td>
               </tr>
             ) : (
-              filteredStudents.map((student) => (
+              students.map((student) => (
                 <tr key={student.id} className="hover:bg-gray-50">
                   <td className="table-cell">
                     <div className="flex items-center gap-2.5">
@@ -233,6 +226,14 @@ export default function AdminStudentsPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={pages}
+        onPageChange={setPage}
+        total={total}
+        perPage={100}
+      />
 
       <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-4 text-sm text-primary-900">
         <div className="flex items-start gap-3">
