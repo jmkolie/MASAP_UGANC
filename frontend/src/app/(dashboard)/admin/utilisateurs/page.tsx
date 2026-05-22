@@ -7,6 +7,7 @@ import { getRoleLabel, getRoleBadgeColor, formatDate } from '@/lib/utils'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
+import { Avatar } from '@/components/ui/Avatar'
 import type { User, Role } from '@/types'
 
 const ROLES: { value: Role | ''; label: string }[] = [
@@ -22,6 +23,7 @@ interface EditForm { first_name: string; last_name: string; phone: string; role:
 interface CreateForm { first_name: string; last_name: string; email: string; phone: string; password: string; role: Role }
 
 const DEFAULT_CREATE: CreateForm = { first_name: '', last_name: '', email: '', phone: '', password: '', role: 'student' }
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -247,9 +249,13 @@ export default function UsersPage() {
                     <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                       <td className="table-cell">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-bold">
-                            {user.first_name[0]}{user.last_name[0]}
-                          </div>
+                          <Avatar
+                            src={user.profile_picture ? `${API_URL}${user.profile_picture}` : null}
+                            alt={`${user.first_name} ${user.last_name}`}
+                            initials={`${user.first_name[0]}${user.last_name[0]}`}
+                            size="sm"
+                            fallbackColor="blue"
+                          />
                           <span className="font-medium text-gray-800">
                             {user.first_name} {user.last_name}
                           </span>

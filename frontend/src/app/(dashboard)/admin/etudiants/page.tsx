@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Download, GraduationCap, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '@/lib/api'
+import { Avatar } from '@/components/ui/Avatar'
 import { PageLoader } from '@/components/ui/LoadingSpinner'
 import { Pagination } from '@/components/ui/Pagination'
 import { getEnrollmentStatusColor, getEnrollmentStatusLabel } from '@/lib/utils'
@@ -14,6 +15,7 @@ interface StudentItem {
   last_name: string
   email: string
   is_active: boolean
+  profile_picture?: string
   student_profile?: {
     id?: number
     student_id: string
@@ -28,6 +30,8 @@ interface StudentItem {
     }
   }
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<StudentItem[]>([])
@@ -155,9 +159,13 @@ export default function AdminStudentsPage() {
                 <tr key={student.id} className="hover:bg-gray-50">
                   <td className="table-cell">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
-                        {student.first_name[0]}{student.last_name[0]}
-                      </div>
+                      <Avatar
+                        src={student.profile_picture ? `${API_URL}${student.profile_picture}` : null}
+                        alt={`${student.first_name} ${student.last_name}`}
+                        initials={`${student.first_name[0]}${student.last_name[0]}`}
+                        size="sm"
+                        fallbackColor="blue"
+                      />
                       <div>
                         <div className="text-sm font-medium text-gray-800">
                           {student.first_name} {student.last_name}
