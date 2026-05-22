@@ -193,6 +193,25 @@ async def create_student(
     return user
 
 
+@router.get("/students/pending", response_model=dict)
+async def list_pending_students(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_admin),
+    db: Session = Depends(get_db),
+):
+    """List students awaiting admin approval (is_active=False)."""
+    query = (
+        db.query(User)
+        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
+        .filter(User.role == RoleEnum.student, User.is_active.is_(False))
+        .order_by(User.created_at.desc())
+    )
+    result = paginate(query, page, per_page)
+    result["items"] = [StudentResponse.model_validate(u) for u in result["items"]]
+    return result
+
+
 @router.get("/students/{student_id}", response_model=StudentResponse)
 async def get_student(
     student_id: int,
@@ -461,25 +480,6 @@ async def import_users_csv(
 
 
 # ─── Pending registrations ─────────────────────────────────────────────────────
-
-@router.get("/students/pending", response_model=dict)
-async def list_pending_students(
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-    current_user: User = Depends(get_admin),
-    db: Session = Depends(get_db),
-):
-    """List students awaiting admin approval (is_active=False)."""
-    query = (
-        db.query(User)
-        .options(joinedload(User.student_profile).joinedload(StudentProfile.program))
-        .filter(User.role == RoleEnum.student, User.is_active.is_(False))
-        .order_by(User.created_at.desc())
-    )
-    result = paginate(query, page, per_page)
-    result["items"] = [StudentResponse.model_validate(u) for u in result["items"]]
-    return result
-
 
 @router.post("/students/{student_id}/approve", response_model=StudentResponse)
 async def approve_student(
